@@ -1,5 +1,17 @@
-using Adapt
-using Base.Test
+import Adapt: adapt, adapt_
+using Test
 
-# write your own tests here
-@test 1 == 2
+# trivial test
+
+struct Matrix
+    mat::AbstractArray
+end
+
+adapt_(::Type{<:Matrix}, xs::AbstractArray) =
+  Matrix(xs)
+
+testmat = [12;34;56;78]
+
+testresult = Matrix(testmat)
+
+@test adapt(Matrix, testmat) == testresult
