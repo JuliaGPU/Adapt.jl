@@ -1,5 +1,7 @@
 module Adapt
 
+using LinearAlgebra
+
 adapt_(T, x) = x
 
 adapt(T, x) = adapt_(T, x)
