@@ -2,18 +2,18 @@
 
 [![Build Status](https://travis-ci.org/MikeInnes/Adapt.jl.svg?branch=master)](https://travis-ci.org/MikeInnes/Adapt.jl)
 
-The `adapt(T, x)` function acts like `convert(T, x)`, but without the restriction of returning a `T`. This allows you to "convert" wrapper types like `RowVector` to be GPU compatible (for example) without throwing away the wrapper.
+The `adapt(T, x)` function acts like `convert(T, x)`, but without the restriction of returning a `T`. This allows you to "convert" wrapper types like `Adjoint` to be GPU compatible (for example) without throwing away the wrapper.
 
 e.g.
 
 ```julia
-adapt(CuArray, ::RowVector{Array})::RowVector{CuArray}
+adapt(CuArray, ::Adjoint{Array})::Adjoint{CuArray}
 ```
 
-New data types like `RowVector` should overload `adapt(T, ::RowVector)` (usually just to forward the call to `adapt`).
+New data types like `Adjoint` should overload `adapt(T, ::Adjoint)` (usually just to forward the call to `adapt`).
 
 ```julia
-adapt(T, x::RowVector) = RowVector(adapt(T, x.vec))
+adapt(T, x::Adjoint) = Adjoint(adapt(T, x.vec))
 ```
 
 New adaptor types like `CuArray` should overload `adapt_` for compatible types.
