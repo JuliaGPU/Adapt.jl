@@ -8,6 +8,6 @@ adapt(T, x) = adapt_(T, x)
 
 # Base integrations
 
-adapt(T, x::RowVector) = RowVector(adapt(T, x.vec))
+adapt(T, x::Adjoint) = Adjoint(adapt(T, vec(x)))
 
 end # module
