@@ -8,6 +8,6 @@ adapt(T, x) = adapt_(T, x)
 
 # Base integrations
 
-adapt(T, x::Adjoint) = Adjoint(adapt(T, vec(x)))
+adapt(T, x::Adjoint) = Adjoint(adapt(T, parent(x)))
 
 end # module

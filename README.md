@@ -13,7 +13,7 @@ adapt(CuArray, ::Adjoint{Array})::Adjoint{CuArray}
 New data types like `Adjoint` should overload `adapt(T, ::Adjoint)` (usually just to forward the call to `adapt`).
 
 ```julia
-adapt(T, x::Adjoint) = Adjoint(adapt(T, x.vec))
+adapt(T, x::Adjoint) = Adjoint(adapt(T, parent(x)))
 ```
 
 New adaptor types like `CuArray` should overload `adapt_` for compatible types.
