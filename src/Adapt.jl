@@ -1,14 +1,14 @@
 module Adapt
 
-using LinearAlgebra
+export adapt
 
-adapt_(T, x) = x
+# external interface
+adapt(to, x) = adapt_structure(to, x)
 
-adapt(T, x) = adapt_(T, x)
+# interface for libraries to implement
+adapt_structure(to, x) = adapt_storage(to, x)
+adapt_storage(to, x) = x
 
-# Base integrations
-
-adapt(T, x::Adjoint) = Adjoint(adapt(T, parent(x)))
-adapt(T, x::Transpose) = Transpose(adapt(T, parent(x)))
+include("base.jl")
 
 end # module

@@ -1,17 +1,51 @@
-import Adapt: adapt, adapt_
+using Adapt
 using Test
 
-# trivial test
 
-struct Matrix
-    mat::AbstractArray
+# custom array type
+
+struct CustomArray{T,N} <: AbstractArray{T,N}
+    arr::AbstractArray
 end
 
-adapt_(::Type{<:Matrix}, xs::AbstractArray) =
-  Matrix(xs)
+CustomArray(x::AbstractArray{T,N}) where {T,N} = CustomArray{T,N}(x)
+Adapt.adapt_storage(::Type{<:CustomArray}, xs::AbstractArray) = CustomArray(xs)
 
-testmat = [12;34;56;78]
+Base.size(x::CustomArray, y...) = size(x.arr, y...)
+Base.getindex(x::CustomArray, y...) = getindex(x.arr, y...)
 
-testresult = Matrix(testmat)
 
-@test adapt(Matrix, testmat) == testresult
+const val = CustomArray{Float64,2}(rand(2,2))
+
+# basic adaption
+@test adapt(CustomArray, val.arr) == val
+@test adapt(CustomArray, val.arr) isa CustomArray
+
+# idempotency
+@test adapt(CustomArray, val) == val
+@test adapt(CustomArray, val) isa CustomArray
+
+# custom wrapper
+struct Wrapper{T}
+    arr::T
+end
+Wrapper(x::T) where T = Wrapper{T}(x)
+Adapt.adapt_structure(to, xs::Wrapper) = Wrapper(adapt(to, xs.arr))
+@test adapt(CustomArray, Wrapper(val.arr)) == Wrapper(val)
+@test adapt(CustomArray, Wrapper(val.arr)) isa Wrapper{<:CustomArray}
+
+
+## base wrappers
+
+@test adapt(CustomArray, (val.arr,)) == (val,)
+
+@test adapt(CustomArray, (a=val.arr,)) == (a=val,)
+
+@test adapt(CustomArray, view(val.arr,:,:)) == view(val,:,:)
+@test adapt(CustomArray, view(val.arr,:,:)) isa SubArray{<:Any,<:Any,<:CustomArray}
+
+
+using LinearAlgebra
+
+@test adapt(CustomArray, val.arr') == val'
+@test adapt(CustomArray, val.arr') isa Adjoint{<:Any,<:CustomArray}
