@@ -1,15 +1,13 @@
 module Adapt
 
-export adapt, AbstractAdaptor
-
-abstract type AbstractAdaptor end
+export adapt
 
 # external interface
-adapt(A::AbstractAdaptor, x) = adapt_structure(A, x)
+adapt(to, x) = adapt_structure(to, x)
 
 # interface for libraries to implement
-adapt_structure(A::AbstractAdaptor, x) = adapt_storage(A, x)
-adapt_storage(::AbstractAdaptor, x) = x
+adapt_structure(to, x) = adapt_storage(to, x)
+adapt_storage(to, x) = x
 
 include("base.jl")
 

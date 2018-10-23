@@ -7,7 +7,7 @@ struct Matrix
     mat::AbstractArray
 end
 
-struct MatrixAdaptor <: Adapt.AbstractAdaptor end
+struct MatrixAdaptor end
 
 Adapt.adapt_structure(::MatrixAdaptor, xs::AbstractArray) = Matrix(xs)
 

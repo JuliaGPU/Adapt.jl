@@ -2,26 +2,26 @@
 
 ## Base
 
-adapt_structure(A::AbstractAdaptor, xs::Tuple) = Tuple(adapt(A, x) for x in xs)
-@generated adapt_structure(A::AbstractAdaptor, x::NamedTuple) =
-    Expr(:tuple, (:($f=adapt(A, x.$f)) for f in fieldnames(x))...)
+adapt_structure(to, xs::Tuple) = Tuple(adapt(to, x) for x in xs)
+@generated adapt_structure(to, x::NamedTuple) =
+    Expr(:tuple, (:($f=adapt(to, x.$f)) for f in fieldnames(x))...)
 
-adapt(A::AbstractAdaptor, x::SubArray) = SubArray(adapt(A, parent(x)), parentindices(x))
+adapt(to, x::SubArray) = SubArray(adapt(to, parent(x)), parentindices(x))
 
 
 ## LinearAlgebra
 
 import LinearAlgebra: Adjoint, Transpose
-adapt_structure(A::AbstractAdaptor, x::Adjoint)   = Adjoint(adapt(A, parent(x)))
-adapt_structure(A::AbstractAdaptor, x::Transpose) = Transpose(adapt(A, parent(x)))
+adapt_structure(to, x::Adjoint)   = Adjoint(adapt(to, parent(x)))
+adapt_structure(to, x::Transpose) = Transpose(adapt(to, parent(x)))
 
 
 ## Broadcast
 
 import Base.Broadcast: Broadcasted, Extruded
 
-adapt_structure(A::AbstractAdaptor, bc::Broadcasted{Style}) where Style =
-  Broadcasted{Style}(bc.f, map(arg->adapt(A, arg), bc.args), bc.axes)
+adapt_structure(to, bc::Broadcasted{Style}) where Style =
+  Broadcasted{Style}(bc.f, map(arg->adapt(to, arg), bc.args), bc.axes)
 
-adapt_structure(A::AbstractAdaptor, ex::Extruded) =
-    Extruded(adapt(A, ex.x), ex.keeps, ex.defaults)
+adapt_structure(to, ex::Extruded) =
+    Extruded(adapt(to, ex.x), ex.keeps, ex.defaults)
