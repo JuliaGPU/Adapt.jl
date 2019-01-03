@@ -38,6 +38,9 @@ Adapt.adapt_structure(to, xs::Wrapper) = Wrapper(adapt(to, xs.arr))
 ## base wrappers
 
 @test adapt(CustomArray, (val.arr,)) == (val,)
+@test @allocated(adapt(nothing, ())) == 0
+@test @allocated(adapt(nothing, (1,))) == 0
+@test @allocated(adapt(nothing, (1,2,3,4,5,6,7,8,9,10))) == 0
 
 @test adapt(CustomArray, (a=val.arr,)) == (a=val,)
 
