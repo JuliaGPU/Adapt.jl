@@ -2,7 +2,18 @@
 
 ## Base
 
-adapt_structure(to, xs::Tuple) = Tuple(adapt(to, x) for x in xs)
+#adapt_structure(to, xs::Tuple) = Tuple(adapt(to, x) for x in xs)
+#
+# non-allocating version
+#@generated adapt_structure(to, x::Tuple) =
+#    Expr(:tuple, (:(adapt(to, x[$i])) for i in 1:fieldcount(x))...)
+#
+# non-allocating, non-@generated version
+adapt_structure(to, xs::Tuple) = _adapt_structure(to, xs)
+_adapt_structure(to, xs::Tuple{}) = ()
+_adapt_structure(to, xs::Tuple) =
+    tuple(adapt(to, xs[1]), _adapt_structure(to, Base.tail(xs))...)
+
 @generated adapt_structure(to, x::NamedTuple) =
     Expr(:tuple, (:($f=adapt(to, x.$f)) for f in fieldnames(x))...)
 
