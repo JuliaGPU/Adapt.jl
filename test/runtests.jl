@@ -29,7 +29,7 @@ const val = CustomArray{Float64,2}(rand(2,2))
 struct Wrapper{T}
     arr::T
 end
-Wrapper(x::T) where T = Wrapper{T}(x)
+Wrapper(x::T) where {T} = Wrapper{T}(x)
 Adapt.adapt_structure(to, xs::Wrapper) = Wrapper(adapt(to, xs.arr))
 @test adapt(CustomArray, Wrapper(val.arr)) == Wrapper(val)
 @test adapt(CustomArray, Wrapper(val.arr)) isa Wrapper{<:CustomArray}
