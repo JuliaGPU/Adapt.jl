@@ -47,6 +47,10 @@ Adapt.adapt_structure(to, xs::Wrapper) = Wrapper(adapt(to, xs.arr))
 @test adapt(CustomArray, view(val.arr,:,:)) == view(val,:,:)
 @test adapt(CustomArray, view(val.arr,:,:)) isa SubArray{<:Any,<:Any,<:CustomArray}
 
+# NOTE: manual creation of ReshapedArray because Base.Array has an optimized `reshape`
+@test adapt(CustomArray, Base.ReshapedArray(val.arr,(2,2),())) == reshape(val,(2,2))
+@test adapt(CustomArray, Base.ReshapedArray(val.arr,(2,2),())) isa Base.ReshapedArray{<:Any,<:Any,<:CustomArray}
+
 
 using LinearAlgebra
 
