@@ -29,7 +29,9 @@ using LinearAlgebra
 # RHS entries consist of a closure to reconstruct the wrapper, with as arguments
 # a wrapper instance and mutator function to apply to the inner array
 const wrappers = (
-  :(SubArray{<:Any,<:Any,AT})                     => (A,mut)->SubArray(mut(parent(A)), parentindices(A)),
+  :(SubArray{<:Any,<:Any,AT})                     => (A,mut)->SubArray(mut(parent(A)), mut(parentindices(A))),
+  :(PermutedDimsArray{<:Any,<:Any,<:Any,<:Any,AT})=> (A,mut)->PermutedDimsArray(mut(parent(A)), permutation(A)),
+  :(Base.ReshapedArray{<:Any,<:Any,AT,<:Any})     => (A,mut)->Base.reshape(mut(parent(A)), size(A)),
   :(LinearAlgebra.Adjoint{<:Any,AT})              => (A,mut)->LinearAlgebra.adjoint(mut(parent(A))),
   :(LinearAlgebra.Transpose{<:Any,AT})            => (A,mut)->LinearAlgebra.transpose(mut(parent(A))),
   :(LinearAlgebra.LowerTriangular{<:Any,AT})      => (A,mut)->LinearAlgebra.LowerTriangular(mut(parent(A))),
@@ -37,8 +39,10 @@ const wrappers = (
   :(LinearAlgebra.UpperTriangular{<:Any,AT})      => (A,mut)->LinearAlgebra.UpperTriangular(mut(parent(A))),
   :(LinearAlgebra.UnitUpperTriangular{<:Any,AT})  => (A,mut)->LinearAlgebra.UnitUpperTriangular(mut(parent(A))),
   :(LinearAlgebra.Diagonal{<:Any,AT})             => (A,mut)->LinearAlgebra.Diagonal(mut(parent(A))),
-  :(Base.ReshapedArray{<:Any,<:Any,AT,<:Any})     => (A,mut)->Base.reshape(mut(parent(A)), size(A))
+  :(LinearAlgebra.Tridiagonal{<:Any,AT})          => (A,mut)->LinearAlgebra.Tridiagonal(mut(A.dl), mut(A.d), mut(A.du)),
 )
+
+permutation(::PermutedDimsArray{T,N,perm}) where {T,N,perm} = perm
 
 for (W, ctor) in wrappers
     mut = :(A -> adapt(to, A))
