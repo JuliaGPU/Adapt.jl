@@ -45,14 +45,26 @@ Adapt.adapt_structure(to, xs::Wrapper) = Wrapper(adapt(to, xs.arr))
 @test adapt(CustomArray, (a=val.arr,)) == (a=val,)
 
 @test adapt(CustomArray, view(val.arr,:,:)) == view(val,:,:)
-@test adapt(CustomArray, view(val.arr,:,:)) isa SubArray{<:Any,<:Any,<:CustomArray}
+const inds = CustomArray{Int,1}([1,2])
+@test adapt(CustomArray, view(val.arr,inds.arr,:)) == view(val,inds,:)
+
+# NOTE: manual creation of PermutedDimsArray because permutedims collects
+@test adapt(CustomArray, PermutedDimsArray(val.arr,(2,1))) == PermutedDimsArray(val,(2,1))
 
 # NOTE: manual creation of ReshapedArray because Base.Array has an optimized `reshape`
 @test adapt(CustomArray, Base.ReshapedArray(val.arr,(2,2),())) == reshape(val,(2,2))
-@test adapt(CustomArray, Base.ReshapedArray(val.arr,(2,2),())) isa Base.ReshapedArray{<:Any,<:Any,<:CustomArray}
 
 
 using LinearAlgebra
 
 @test adapt(CustomArray, val.arr') == val'
-@test adapt(CustomArray, val.arr') isa Adjoint{<:Any,<:CustomArray}
+
+@test adapt(CustomArray, transpose(val.arr)) == transpose(val)
+
+@test adapt(CustomArray, LowerTriangular(val.arr)) == LowerTriangular(val)
+@test adapt(CustomArray, UnitLowerTriangular(val.arr)) == UnitLowerTriangular(val)
+@test adapt(CustomArray, UpperTriangular(val.arr)) == UpperTriangular(val)
+@test adapt(CustomArray, UnitUpperTriangular(val.arr)) == UnitUpperTriangular(val)
+
+@test adapt(CustomArray, Diagonal(val.arr)) == Diagonal(val)
+@test adapt(CustomArray, Tridiagonal(val.arr)) == Tridiagonal(val)
