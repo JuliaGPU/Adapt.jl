@@ -37,6 +37,7 @@ Adapt.adapt_structure(to, xs::Wrapper) = Wrapper(adapt(to, xs.arr))
 
 ## base wrappers
 
+@test @inferred(adapt(nothing, NamedTuple())) == NamedTuple()
 @test adapt(CustomArray, (val.arr,)) == (val,)
 @test @allocated(adapt(nothing, ())) == 0
 @test @allocated(adapt(nothing, (1,))) == 0
