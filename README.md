@@ -1,6 +1,17 @@
 # Adapt
 
-[![Build Status](https://travis-ci.org/JuliaGPU/Adapt.jl.svg?branch=master)](https://travis-ci.org/JuliaGPU/Adapt.jl)
+| **Build Status**                                                     | **Coverage**                    |
+|:--------------------------------------------------------------------:|:-------------------------------:|
+| [![][travis-img]][travis-url] [![PkgEval][pkgeval-img]][pkgeval-url] | [![][codecov-img]][codecov-url] |
+
+[travis-img]: https://api.travis-ci.org/JuliaGPU/Adapt.jl.svg?branch=master
+[travis-url]: https://travis-ci.org/JuliaGPU/Adapt.jl
+
+[pkgeval-img]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/A/Adapt.svg
+[pkgeval-url]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/A/Adapt.html
+
+[codecov-img]: https://codecov.io/gh/JuliaGPU/Adapt.jl/branch/master/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/JuliaGPU/Adapt.jl
 
 The `adapt(T, x)` function acts like `convert(T, x)`, but without the
 restriction of returning a `T`. This allows you to "convert" wrapper types like
