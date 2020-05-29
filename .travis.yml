@@ -1,6 +1,7 @@
 language: julia
 
 os:
+  - windows
   - linux
   - osx
 
