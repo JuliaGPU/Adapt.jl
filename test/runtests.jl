@@ -15,15 +15,22 @@ Base.size(x::CustomArray, y...) = size(x.arr, y...)
 Base.getindex(x::CustomArray, y...) = getindex(x.arr, y...)
 
 
-const val = CustomArray{Float64,2}(rand(2,2))
+const mat = CustomArray{Float64,2}(rand(2,2))
+const vec = CustomArray{Float64,1}(rand(2))
+
+macro test_adapt(to, src, dst)
+    quote
+        @test adapt($to, $src) == $dst
+        @test typeof(adapt($to, $src)) == typeof($dst)
+    end
+end
+
 
 # basic adaption
-@test adapt(CustomArray, val.arr) == val
-@test adapt(CustomArray, val.arr) isa CustomArray
+@test_adapt CustomArray mat.arr mat
 
 # idempotency
-@test adapt(CustomArray, val) == val
-@test adapt(CustomArray, val) isa CustomArray
+@test_adapt CustomArray mat mat
 
 # custom wrapper
 struct Wrapper{T}
@@ -31,41 +38,44 @@ struct Wrapper{T}
 end
 Wrapper(x::T) where T = Wrapper{T}(x)
 Adapt.adapt_structure(to, xs::Wrapper) = Wrapper(adapt(to, xs.arr))
-@test adapt(CustomArray, Wrapper(val.arr)) == Wrapper(val)
-@test adapt(CustomArray, Wrapper(val.arr)) isa Wrapper{<:CustomArray}
+@test_adapt CustomArray Wrapper(mat.arr) Wrapper(mat)
 
 
 ## base wrappers
 
 @test @inferred(adapt(nothing, NamedTuple())) == NamedTuple()
-@test adapt(CustomArray, (val.arr,)) == (val,)
+@test_adapt CustomArray (mat.arr,) (mat,)
 @test @allocated(adapt(nothing, ())) == 0
 @test @allocated(adapt(nothing, (1,))) == 0
 @test @allocated(adapt(nothing, (1,2,3,4,5,6,7,8,9,10))) == 0
 
-@test adapt(CustomArray, (a=val.arr,)) == (a=val,)
+@test_adapt CustomArray (a=mat.arr,) (a=mat,)
 
-@test adapt(CustomArray, view(val.arr,:,:)) == view(val,:,:)
+@test_adapt CustomArray view(mat.arr,:,:) view(mat,:,:)
 const inds = CustomArray{Int,1}([1,2])
-@test adapt(CustomArray, view(val.arr,inds.arr,:)) == view(val,inds,:)
+@test_adapt CustomArray view(mat.arr,inds.arr,:) view(mat,inds,:)
 
 # NOTE: manual creation of PermutedDimsArray because permutedims collects
-@test adapt(CustomArray, PermutedDimsArray(val.arr,(2,1))) == PermutedDimsArray(val,(2,1))
+@test_adapt CustomArray PermutedDimsArray(mat.arr,(2,1)) PermutedDimsArray(mat,(2,1))
 
 # NOTE: manual creation of ReshapedArray because Base.Array has an optimized `reshape`
-@test adapt(CustomArray, Base.ReshapedArray(val.arr,(2,2),())) == reshape(val,(2,2))
+@test_adapt CustomArray Base.ReshapedArray(mat.arr,(2,2),()) reshape(mat,(2,2))
 
 
 using LinearAlgebra
 
-@test adapt(CustomArray, val.arr') == val'
+@test_adapt CustomArray mat.arr' mat'
 
-@test adapt(CustomArray, transpose(val.arr)) == transpose(val)
+@test_adapt CustomArray transpose(mat.arr) transpose(mat)
 
-@test adapt(CustomArray, LowerTriangular(val.arr)) == LowerTriangular(val)
-@test adapt(CustomArray, UnitLowerTriangular(val.arr)) == UnitLowerTriangular(val)
-@test adapt(CustomArray, UpperTriangular(val.arr)) == UpperTriangular(val)
-@test adapt(CustomArray, UnitUpperTriangular(val.arr)) == UnitUpperTriangular(val)
+@test_adapt CustomArray LowerTriangular(mat.arr) LowerTriangular(mat)
+@test_adapt CustomArray UnitLowerTriangular(mat.arr) UnitLowerTriangular(mat)
+@test_adapt CustomArray UpperTriangular(mat.arr) UpperTriangular(mat)
+@test_adapt CustomArray UnitUpperTriangular(mat.arr) UnitUpperTriangular(mat)
 
-@test adapt(CustomArray, Diagonal(val.arr)) == Diagonal(val)
-@test adapt(CustomArray, Tridiagonal(val.arr)) == Tridiagonal(val)
+@test_adapt CustomArray Diagonal(vec.arr) Diagonal(vec)
+
+const dl = CustomArray{Float64,1}(rand(2))
+const du = CustomArray{Float64,1}(rand(2))
+const d = CustomArray{Float64,1}(rand(3))
+@test_adapt CustomArray Tridiagonal(dl.arr, d.arr, du.arr) Tridiagonal(dl, d, du)
