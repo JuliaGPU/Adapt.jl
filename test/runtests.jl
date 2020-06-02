@@ -5,11 +5,11 @@ using Test
 # custom array type
 
 struct CustomArray{T,N} <: AbstractArray{T,N}
-    arr::AbstractArray
+    arr::Array
 end
 
-CustomArray(x::AbstractArray{T,N}) where {T,N} = CustomArray{T,N}(x)
-Adapt.adapt_storage(::Type{<:CustomArray}, xs::AbstractArray) = CustomArray(xs)
+CustomArray(x::Array{T,N}) where {T,N} = CustomArray{T,N}(x)
+Adapt.adapt_storage(::Type{<:CustomArray}, xs::Array) = CustomArray(xs)
 
 Base.size(x::CustomArray, y...) = size(x.arr, y...)
 Base.getindex(x::CustomArray, y...) = getindex(x.arr, y...)
