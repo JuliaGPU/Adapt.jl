@@ -79,3 +79,5 @@ const dl = CustomArray{Float64,1}(rand(2))
 const du = CustomArray{Float64,1}(rand(2))
 const d = CustomArray{Float64,1}(rand(3))
 @test_adapt CustomArray Tridiagonal(dl.arr, d.arr, du.arr) Tridiagonal(dl, d, du)
+
+@test ndims(LinearAlgebra.Transpose{Float64,Array{Float64,1}}) == 2

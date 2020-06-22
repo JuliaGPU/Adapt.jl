@@ -48,7 +48,7 @@ Only use this type for dispatch purposes. To convert instances of an array wrapp
 const WrappedArray{T,N,Src,Dst} = @eval Union{$([W for (W,ctor) in Adapt._wrappers]...)} where {T,N,Src,Dst}
 
 # XXX: this Union is a hack:
-# - only works with one level of wrappi ng
+# - only works with one level of wrapping
 # - duplication of Src and Dst typevars (without it, we get `WrappedGPUArray{T,N,AT{T,N}}`
 #   not matching `SubArray{T,1,AT{T,2}}`, and leaving out `{T,N}` makes it impossible to
 #   match e.g. `Diagonal{T,AT}` and get `N` out of that). alternatively, computed types
@@ -59,7 +59,16 @@ const WrappedArray{T,N,Src,Dst} = @eval Union{$([W for (W,ctor) in Adapt._wrappe
 # https://github.com/JuliaLang/julia/pull/31563
 
 # accessors for extracting information about the wrapper type
-Base.ndims(::Type{<:WrappedArray{T,N,Src,Dst}}) where {T,N,Src,Dst} = @isdefined(N) ? N : ndims(Dst)
-Base.eltype(::Type{<:WrappedArray{T,N,Src,Dst}}) where {T,N,Src,Dst} = @isdefined(T) ? T : ndims(Dst)
+Base.ndims(W::Type{<:WrappedArray{T,N,Src,Dst}}) where {T,N,Src,Dst} = @isdefined(N) ? N : specialized_ndims(W)
+Base.eltype(::Type{<:WrappedArray{T,N,Src,Dst}}) where {T,N,Src,Dst} = T  # every wrapper has a T typevar
 Base.parent(W::Type{<:WrappedArray{T,N,Src,Dst}}) where {T,N,Src,Dst} = @isdefined(Dst) ? Dst.name.wrapper : Src.name.wrapper
 
+# some wrappers don't have a N typevar because it is constant, but we can't extract that from <:WrappedArray
+specialized_ndims(::Type{<:LinearAlgebra.Adjoint}) = 2
+specialized_ndims(::Type{<:LinearAlgebra.Transpose}) = 2
+specialized_ndims(::Type{<:LinearAlgebra.LowerTriangular}) = 2
+specialized_ndims(::Type{<:LinearAlgebra.UnitLowerTriangular}) = 2
+specialized_ndims(::Type{<:LinearAlgebra.UpperTriangular}) = 2
+specialized_ndims(::Type{<:LinearAlgebra.UnitUpperTriangular}) = 2
+specialized_ndims(::Type{<:LinearAlgebra.Diagonal}) = 2
+specialized_ndims(::Type{<:LinearAlgebra.Tridiagonal}) = 2
