@@ -10,6 +10,7 @@ export WrappedArray
 # database of array wrappers
 const _wrappers = (
   :(SubArray{T,N,<:Src})                          => (A,mut)->SubArray(mut(parent(A)), mut(parentindices(A))),
+  :(Base.LogicalIndex{T,<:Src})                   => (A,mut)->Base.LogicalIndex(mut(A.mask)),
   :(PermutedDimsArray{T,N,<:Any,<:Any,<:Src})     => (A,mut)->PermutedDimsArray(mut(parent(A)), permutation(A)),
   :(Base.ReshapedArray{T,N,<:Src})                => (A,mut)->Base.reshape(mut(parent(A)), size(A)),
   :(Base.ReinterpretArray{T,N,<:Src})             => (A,mut)->Base.reinterpret(eltype(A), mut(parent(A))),

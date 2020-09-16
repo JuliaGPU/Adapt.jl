@@ -13,10 +13,12 @@ Adapt.adapt_storage(::Type{<:CustomArray}, xs::Array) = CustomArray(xs)
 
 Base.size(x::CustomArray, y...) = size(x.arr, y...)
 Base.getindex(x::CustomArray, y...) = getindex(x.arr, y...)
-
+Base.count(x::CustomArray) = count(x.arr)
 
 const mat = CustomArray{Float64,2}(rand(2,2))
 const vec = CustomArray{Float64,1}(rand(2))
+
+const mat_bools = CustomArray{Bool,2}(rand(Bool,2,2))
 
 macro test_adapt(to, src, dst)
     quote
@@ -60,6 +62,8 @@ const inds = CustomArray{Int,1}([1,2])
 
 # NOTE: manual creation of ReshapedArray because Base.Array has an optimized `reshape`
 @test_adapt CustomArray Base.ReshapedArray(mat.arr,(2,2),()) reshape(mat,(2,2))
+
+@test_adapt CustomArray Base.LogicalIndex(mat_bools.arr) Base.LogicalIndex(mat_bools)
 
 
 using LinearAlgebra
