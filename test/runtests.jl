@@ -70,6 +70,7 @@ const inds = CustomArray{Int,1}([1,2])
 
 @test_adapt CustomArray Base.LogicalIndex(mat_bools.arr) Base.LogicalIndex(mat_bools) WrappedCustomArray
 
+@test_adapt CustomArray reinterpret(Int64,mat.arr) reinterpret(Int64,mat) WrappedCustomArray
 
 
 using LinearAlgebra
