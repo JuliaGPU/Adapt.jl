@@ -8,12 +8,12 @@ permutation(::PermutedDimsArray{T,N,perm}) where {T,N,perm} = perm
 export WrappedArray
 
 # database of array wrappers
-const _wrappers = (
-  :(SubArray{T,N,<:Src})                          => (A,mut)->SubArray(mut(parent(A)), mut(parentindices(A))),
+const _wrappers = [
+  #:(SubArray{T,N,<:Src})                         => (A,mut)->SubArray(mut(parent(A)), mut(parentindices(A))),
   :(Base.LogicalIndex{T,<:Src})                   => (A,mut)->Base.LogicalIndex(mut(A.mask)),
   :(PermutedDimsArray{T,N,<:Any,<:Any,<:Src})     => (A,mut)->PermutedDimsArray(mut(parent(A)), permutation(A)),
-  :(Base.ReshapedArray{T,N,<:Src})                => (A,mut)->Base.reshape(mut(parent(A)), size(A)),
-  :(Base.ReinterpretArray{T,N,<:Src})             => (A,mut)->Base.reinterpret(eltype(A), mut(parent(A))),
+  #:(Base.ReshapedArray{T,N,<:Src})               => (A,mut)->Base.reshape(mut(parent(A)), size(A)),
+  #:(Base.ReinterpretArray{T,N,<:Any,<:Src})      => (A,mut)->Base.reinterpret(eltype(A), mut(parent(A))),
   :(LinearAlgebra.Adjoint{T,<:Dst})               => (A,mut)->LinearAlgebra.adjoint(mut(parent(A))),
   :(LinearAlgebra.Transpose{T,<:Dst})             => (A,mut)->LinearAlgebra.transpose(mut(parent(A))),
   :(LinearAlgebra.LowerTriangular{T,<:Dst})       => (A,mut)->LinearAlgebra.LowerTriangular(mut(parent(A))),
@@ -22,7 +22,20 @@ const _wrappers = (
   :(LinearAlgebra.UnitUpperTriangular{T,<:Dst})   => (A,mut)->LinearAlgebra.UnitUpperTriangular(mut(parent(A))),
   :(LinearAlgebra.Diagonal{T,<:Dst})              => (A,mut)->LinearAlgebra.Diagonal(mut(parent(A))),
   :(LinearAlgebra.Tridiagonal{T,<:Dst})           => (A,mut)->LinearAlgebra.Tridiagonal(mut(A.dl), mut(A.d), mut(A.du)),
-)
+]
+
+# we generally don't support multiple layers of wrappers, but some occur often
+# and are supported by Base aliases like StridedArray.
+const SimpleSubArray = :(SubArray{<:Any,<:Any,<:Src})
+const WrappedReinterpretArray = :(Base.ReinterpretArray{T,N,<:Any,<:Union{Src,$SimpleSubArray}})
+push!(_wrappers,
+      WrappedReinterpretArray => (A,mut)->Base.reinterpret(eltype(A), mut(parent(A))))
+const WrappedReshapedArray = :(Base.ReshapedArray{T,N,<:Union{Src,$SimpleSubArray,$WrappedReinterpretArray}})
+push!(_wrappers,
+      WrappedReshapedArray    => (A,mut)->Base.reshape(mut(parent(A)), size(A)))
+const WrappedSubArray = :(SubArray{T,N,<:Union{Src,$WrappedReshapedArray,$WrappedReinterpretArray}})
+push!(_wrappers,
+      WrappedSubArray         => (A,mut)->SubArray(mut(parent(A)), mut(parentindices(A))))
 
 for (W, ctor) in _wrappers
     mut = :(A -> adapt(to, A))

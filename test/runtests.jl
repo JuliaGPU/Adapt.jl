@@ -20,12 +20,17 @@ const vec = CustomArray{Float64,1}(rand(2))
 
 const mat_bools = CustomArray{Bool,2}(rand(Bool,2,2))
 
-macro test_adapt(to, src, dst)
+macro test_adapt(to, src, dst, typ=nothing)
     quote
         @test adapt($to, $src) == $dst
         @test typeof(adapt($to, $src)) == typeof($dst)
+        if $typ !== nothing
+            @test typeof($dst) <: $typ
+        end
     end
 end
+
+WrappedCustomArray{T,N} = Union{CustomArray,WrappedArray{T,N,CustomArray,CustomArray{T,N}}}
 
 
 # basic adaption
@@ -53,35 +58,53 @@ Adapt.adapt_structure(to, xs::Wrapper) = Wrapper(adapt(to, xs.arr))
 
 @test_adapt CustomArray (a=mat.arr,) (a=mat,)
 
-@test_adapt CustomArray view(mat.arr,:,:) view(mat,:,:)
+@test_adapt CustomArray view(mat.arr,:,:) view(mat,:,:) WrappedCustomArray
 const inds = CustomArray{Int,1}([1,2])
-@test_adapt CustomArray view(mat.arr,inds.arr,:) view(mat,inds,:)
+@test_adapt CustomArray view(mat.arr,inds.arr,:) view(mat,inds,:) WrappedCustomArray
 
 # NOTE: manual creation of PermutedDimsArray because permutedims collects
-@test_adapt CustomArray PermutedDimsArray(mat.arr,(2,1)) PermutedDimsArray(mat,(2,1))
+@test_adapt CustomArray PermutedDimsArray(mat.arr,(2,1)) PermutedDimsArray(mat,(2,1)) WrappedCustomArray
 
 # NOTE: manual creation of ReshapedArray because Base.Array has an optimized `reshape`
-@test_adapt CustomArray Base.ReshapedArray(mat.arr,(2,2),()) reshape(mat,(2,2))
+@test_adapt CustomArray Base.ReshapedArray(mat.arr,(2,2),()) reshape(mat,(2,2)) WrappedCustomArray
 
-@test_adapt CustomArray Base.LogicalIndex(mat_bools.arr) Base.LogicalIndex(mat_bools)
+@test_adapt CustomArray Base.LogicalIndex(mat_bools.arr) Base.LogicalIndex(mat_bools) WrappedCustomArray
+
+@test_adapt CustomArray reinterpret(Int64,mat.arr) reinterpret(Int64,mat) WrappedCustomArray
+
+
+## doubly-wrapped
+
+@test_adapt CustomArray reinterpret(Int64,view(mat.arr,:,:)) reinterpret(Int64,view(mat,:,:)) WrappedCustomArray
+
+@test_adapt CustomArray reshape(view(mat.arr,:,:), (2,2)) reshape(view(mat,:,:), (2,2)) WrappedCustomArray
+@test_adapt CustomArray reshape(reinterpret(Int64,mat.arr), (2,2)) reshape(reinterpret(Int64,mat), (2,2)) WrappedCustomArray
+@test_adapt CustomArray reshape(reinterpret(Int64,view(mat.arr,:,:)), (2,2)) reshape(reinterpret(Int64,view(mat,:,:)), (2,2)) WrappedCustomArray
+
+@test_adapt CustomArray view(reinterpret(Int64,mat.arr), :, :) view(reinterpret(Int64,mat), :, :) WrappedCustomArray
+@test_adapt CustomArray view(reinterpret(Int64,view(mat.arr,:,:)), :, :) view(reinterpret(Int64,view(mat,:,:)), :, :) WrappedCustomArray
+@test_adapt CustomArray view(Base.ReshapedArray(mat.arr,(2,2),()), :, :) view(reshape(mat, (2,2)), :, :) WrappedCustomArray
+@test_adapt CustomArray view(reshape(view(mat.arr,:,:), (2,2)), :, :) view(reshape(view(mat,:,:), (2,2)), :, :) WrappedCustomArray
+@test_adapt CustomArray view(reshape(reinterpret(Int64,mat.arr), (2,2)), :, :) view(reshape(reinterpret(Int64,mat), (2,2)), :, :) WrappedCustomArray
+@test_adapt CustomArray view(reshape(reinterpret(Int64,view(mat.arr,:,:)), (2,2)), :, :) view(reshape(reinterpret(Int64,view(mat,:,:)), (2,2)), :, :) WrappedCustomArray
 
 
 using LinearAlgebra
 
-@test_adapt CustomArray mat.arr' mat'
+@test_adapt CustomArray mat.arr' mat' WrappedCustomArray
 
-@test_adapt CustomArray transpose(mat.arr) transpose(mat)
+@test_adapt CustomArray transpose(mat.arr) transpose(mat) WrappedCustomArray
 
-@test_adapt CustomArray LowerTriangular(mat.arr) LowerTriangular(mat)
-@test_adapt CustomArray UnitLowerTriangular(mat.arr) UnitLowerTriangular(mat)
-@test_adapt CustomArray UpperTriangular(mat.arr) UpperTriangular(mat)
-@test_adapt CustomArray UnitUpperTriangular(mat.arr) UnitUpperTriangular(mat)
+@test_adapt CustomArray LowerTriangular(mat.arr) LowerTriangular(mat) WrappedCustomArray
+@test_adapt CustomArray UnitLowerTriangular(mat.arr) UnitLowerTriangular(mat) WrappedCustomArray
+@test_adapt CustomArray UpperTriangular(mat.arr) UpperTriangular(mat) WrappedCustomArray
+@test_adapt CustomArray UnitUpperTriangular(mat.arr) UnitUpperTriangular(mat) WrappedCustomArray
 
-@test_adapt CustomArray Diagonal(vec.arr) Diagonal(vec)
+@test_adapt CustomArray Diagonal(vec.arr) Diagonal(vec) WrappedCustomArray
 
 const dl = CustomArray{Float64,1}(rand(2))
 const du = CustomArray{Float64,1}(rand(2))
 const d = CustomArray{Float64,1}(rand(3))
-@test_adapt CustomArray Tridiagonal(dl.arr, d.arr, du.arr) Tridiagonal(dl, d, du)
+@test_adapt CustomArray Tridiagonal(dl.arr, d.arr, du.arr) Tridiagonal(dl, d, du) WrappedCustomArray
 
 @test ndims(LinearAlgebra.Transpose{Float64,Array{Float64,1}}) == 2
