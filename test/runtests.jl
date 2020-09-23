@@ -20,12 +20,17 @@ const vec = CustomArray{Float64,1}(rand(2))
 
 const mat_bools = CustomArray{Bool,2}(rand(Bool,2,2))
 
-macro test_adapt(to, src, dst)
+macro test_adapt(to, src, dst, typ=nothing)
     quote
         @test adapt($to, $src) == $dst
         @test typeof(adapt($to, $src)) == typeof($dst)
+        if $typ !== nothing
+            @test typeof($dst) <: $typ
+        end
     end
 end
+
+WrappedCustomArray{T,N} = Union{CustomArray,WrappedArray{T,N,CustomArray,CustomArray{T,N}}}
 
 
 # basic adaption
@@ -53,17 +58,18 @@ Adapt.adapt_structure(to, xs::Wrapper) = Wrapper(adapt(to, xs.arr))
 
 @test_adapt CustomArray (a=mat.arr,) (a=mat,)
 
-@test_adapt CustomArray view(mat.arr,:,:) view(mat,:,:)
+@test_adapt CustomArray view(mat.arr,:,:) view(mat,:,:) WrappedCustomArray
 const inds = CustomArray{Int,1}([1,2])
-@test_adapt CustomArray view(mat.arr,inds.arr,:) view(mat,inds,:)
+@test_adapt CustomArray view(mat.arr,inds.arr,:) view(mat,inds,:) WrappedCustomArray
 
 # NOTE: manual creation of PermutedDimsArray because permutedims collects
-@test_adapt CustomArray PermutedDimsArray(mat.arr,(2,1)) PermutedDimsArray(mat,(2,1))
+@test_adapt CustomArray PermutedDimsArray(mat.arr,(2,1)) PermutedDimsArray(mat,(2,1)) WrappedCustomArray
 
 # NOTE: manual creation of ReshapedArray because Base.Array has an optimized `reshape`
-@test_adapt CustomArray Base.ReshapedArray(mat.arr,(2,2),()) reshape(mat,(2,2))
+@test_adapt CustomArray Base.ReshapedArray(mat.arr,(2,2),()) reshape(mat,(2,2)) WrappedCustomArray
 
-@test_adapt CustomArray Base.LogicalIndex(mat_bools.arr) Base.LogicalIndex(mat_bools)
+@test_adapt CustomArray Base.LogicalIndex(mat_bools.arr) Base.LogicalIndex(mat_bools) WrappedCustomArray
+
 
 
 using LinearAlgebra
