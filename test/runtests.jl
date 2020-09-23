@@ -89,23 +89,22 @@ const inds = CustomArray{Int,1}([1,2])
 @test_adapt CustomArray view(reshape(reinterpret(Int64,view(mat.arr,:,:)), (2,2)), :, :) view(reshape(reinterpret(Int64,view(mat,:,:)), (2,2)), :, :) WrappedCustomArray
 
 
-
 using LinearAlgebra
 
-@test_adapt CustomArray mat.arr' mat'
+@test_adapt CustomArray mat.arr' mat' WrappedCustomArray
 
-@test_adapt CustomArray transpose(mat.arr) transpose(mat)
+@test_adapt CustomArray transpose(mat.arr) transpose(mat) WrappedCustomArray
 
-@test_adapt CustomArray LowerTriangular(mat.arr) LowerTriangular(mat)
-@test_adapt CustomArray UnitLowerTriangular(mat.arr) UnitLowerTriangular(mat)
-@test_adapt CustomArray UpperTriangular(mat.arr) UpperTriangular(mat)
-@test_adapt CustomArray UnitUpperTriangular(mat.arr) UnitUpperTriangular(mat)
+@test_adapt CustomArray LowerTriangular(mat.arr) LowerTriangular(mat) WrappedCustomArray
+@test_adapt CustomArray UnitLowerTriangular(mat.arr) UnitLowerTriangular(mat) WrappedCustomArray
+@test_adapt CustomArray UpperTriangular(mat.arr) UpperTriangular(mat) WrappedCustomArray
+@test_adapt CustomArray UnitUpperTriangular(mat.arr) UnitUpperTriangular(mat) WrappedCustomArray
 
-@test_adapt CustomArray Diagonal(vec.arr) Diagonal(vec)
+@test_adapt CustomArray Diagonal(vec.arr) Diagonal(vec) WrappedCustomArray
 
 const dl = CustomArray{Float64,1}(rand(2))
 const du = CustomArray{Float64,1}(rand(2))
 const d = CustomArray{Float64,1}(rand(3))
-@test_adapt CustomArray Tridiagonal(dl.arr, d.arr, du.arr) Tridiagonal(dl, d, du)
+@test_adapt CustomArray Tridiagonal(dl.arr, d.arr, du.arr) Tridiagonal(dl, d, du) WrappedCustomArray
 
 @test ndims(LinearAlgebra.Transpose{Float64,Array{Float64,1}}) == 2
