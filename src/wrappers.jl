@@ -110,6 +110,7 @@ Base.parent(::Type{<:WrappedArray{<:Any,<:Any,Src,Dst}}) where {Src,Dst} =
       @isdefined(Dst) ? Dst.name.wrapper : Src.name.wrapper
 
 # some wrappers don't have a N typevar because it is constant, but we can't extract that from <:WrappedArray
+specialized_ndims(::Type{<:Base.LogicalIndex}) = 1
 specialized_ndims(::Type{<:LinearAlgebra.Adjoint}) = 2
 specialized_ndims(::Type{<:LinearAlgebra.Transpose}) = 2
 specialized_ndims(::Type{<:LinearAlgebra.LowerTriangular}) = 2
