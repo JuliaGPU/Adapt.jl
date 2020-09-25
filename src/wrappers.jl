@@ -103,9 +103,11 @@ WrappedArray{T,N,Src,Dst} = Union{
 # https://github.com/JuliaLang/julia/pull/31563
 
 # accessors for extracting information about the wrapper type
-Base.ndims(W::Type{<:WrappedArray{<:Any,N}}) where {N} = @isdefined(N) ? N : specialized_ndims(W)
+Base.ndims(W::Type{<:WrappedArray{<:Any,N}}) where {N} =
+      @isdefined(N) ? N : specialized_ndims(W)
 Base.eltype(::Type{<:WrappedArray{T}}) where {T} = T  # every wrapper has a T typevar
-Base.parent(::Type{<:WrappedArray{<:Any,<:Any,Src,Dst}}) where {Src,Dst} = @isdefined(Dst) ? Dst.name.wrapper : Src.name.wrapper
+Base.parent(::Type{<:WrappedArray{<:Any,<:Any,Src,Dst}}) where {Src,Dst} =
+      @isdefined(Dst) ? Dst.name.wrapper : Src.name.wrapper
 
 # some wrappers don't have a N typevar because it is constant, but we can't extract that from <:WrappedArray
 specialized_ndims(::Type{<:LinearAlgebra.Adjoint}) = 2
