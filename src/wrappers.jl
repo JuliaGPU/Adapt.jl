@@ -40,17 +40,17 @@ adapt_structure(to, A::LinearAlgebra.Tridiagonal) =
 # and are supported by Base aliases like StridedArray.
 
 WrappedReinterpretArray{T,N,Src} =
-      Base.ReinterpretArray{T,N,S,<:Union{Src,SubArray{S,N,Src}}} where S
+      Base.ReinterpretArray{T,N,<:Any,<:Union{Src,SubArray{<:Any,<:Any,Src}}}
 
 WrappedReshapedArray{T,N,Src} =
       Base.ReshapedArray{T,N,<:Union{Src,
-                                     SubArray{T,<:Any,Src},
-                                     WrappedReinterpretArray{T,<:Any,Src}}}
+                                     SubArray{<:Any,<:Any,Src},
+                                     WrappedReinterpretArray{<:Any,<:Any,Src}}}
 
 WrappedSubArray{T,N,Src} =
       SubArray{T,N,<:Union{Src,
-                           WrappedReshapedArray{T,<:Any,Src},
-                           WrappedReinterpretArray{T,<:Any,Src}}}
+                           WrappedReshapedArray{<:Any,<:Any,Src},
+                           WrappedReinterpretArray{<:Any,<:Any,Src}}}
 
 
 """
