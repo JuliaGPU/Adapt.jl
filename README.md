@@ -4,8 +4,8 @@
 |:--------------------------------------------------------------------:|:-------------------------------:|
 | [![][travis-img]][travis-url] [![PkgEval][pkgeval-img]][pkgeval-url] | [![][codecov-img]][codecov-url] |
 
-[travis-img]: https://api.travis-ci.org/JuliaGPU/Adapt.jl.svg?branch=master
-[travis-url]: https://travis-ci.org/JuliaGPU/Adapt.jl
+[travis-img]: https://api.travis-ci.com/JuliaGPU/Adapt.jl.svg?branch=master
+[travis-url]: https://travis-ci.com/JuliaGPU/Adapt.jl
 
 [pkgeval-img]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/A/Adapt.svg
 [pkgeval-url]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/A/Adapt.html
