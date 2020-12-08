@@ -1,11 +1,11 @@
 # Adapt
 
-| **Build Status**                                                     | **Coverage**                    |
-|:--------------------------------------------------------------------:|:-------------------------------:|
-| [![][travis-img]][travis-url] [![PkgEval][pkgeval-img]][pkgeval-url] | [![][codecov-img]][codecov-url] |
+| **Build Status**                                      | **Coverage**                    |
+|:-----------------------------------------------------:|:-------------------------------:|
+| [![][ci-img]][ci-url] [![][pkgeval-img]][pkgeval-url] | [![][codecov-img]][codecov-url] |
 
-[travis-img]: https://api.travis-ci.com/JuliaGPU/Adapt.jl.svg?branch=master
-[travis-url]: https://travis-ci.com/JuliaGPU/Adapt.jl
+[ci-img]: https://github.com/JuliaGPU/Adapt.jl/workflows/CI/badge.svg
+[ci-url]: https://github.com/JuliaGPU/Adapt.jl/actions?query=workflow:CI
 
 [pkgeval-img]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/A/Adapt.svg
 [pkgeval-url]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/A/Adapt.html
