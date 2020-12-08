@@ -103,19 +103,26 @@ WrappedArray{T,N,Src,Dst} = Union{
 # https://github.com/JuliaLang/julia/pull/31563
 
 # accessors for extracting information about the wrapper type
-Base.ndims(W::Type{<:WrappedArray{<:Any,N}}) where {N} =
-      @isdefined(N) ? N : specialized_ndims(W)
-Base.eltype(::Type{<:WrappedArray{T}}) where {T} = T  # every wrapper has a T typevar
-Base.parent(::Type{<:WrappedArray{<:Any,<:Any,Src,Dst}}) where {Src,Dst} =
-      @isdefined(Dst) ? Dst.name.wrapper : Src.name.wrapper
+Base.ndims(::Type{<:Base.LogicalIndex}) = 1
+Base.ndims(::Type{<:LinearAlgebra.Adjoint}) = 2
+Base.ndims(::Type{<:LinearAlgebra.Transpose}) = 2
+Base.ndims(::Type{<:LinearAlgebra.LowerTriangular}) = 2
+Base.ndims(::Type{<:LinearAlgebra.UnitLowerTriangular}) = 2
+Base.ndims(::Type{<:LinearAlgebra.UpperTriangular}) = 2
+Base.ndims(::Type{<:LinearAlgebra.UnitUpperTriangular}) = 2
+Base.ndims(::Type{<:LinearAlgebra.Diagonal}) = 2
+Base.ndims(::Type{<:LinearAlgebra.Tridiagonal}) = 2
+Base.ndims(::Type{<:WrappedArray{<:Any,N}}) where {N} = N
 
-# some wrappers don't have a N typevar because it is constant, but we can't extract that from <:WrappedArray
-specialized_ndims(::Type{<:Base.LogicalIndex}) = 1
-specialized_ndims(::Type{<:LinearAlgebra.Adjoint}) = 2
-specialized_ndims(::Type{<:LinearAlgebra.Transpose}) = 2
-specialized_ndims(::Type{<:LinearAlgebra.LowerTriangular}) = 2
-specialized_ndims(::Type{<:LinearAlgebra.UnitLowerTriangular}) = 2
-specialized_ndims(::Type{<:LinearAlgebra.UpperTriangular}) = 2
-specialized_ndims(::Type{<:LinearAlgebra.UnitUpperTriangular}) = 2
-specialized_ndims(::Type{<:LinearAlgebra.Diagonal}) = 2
-specialized_ndims(::Type{<:LinearAlgebra.Tridiagonal}) = 2
+Base.eltype(::Type{<:WrappedArray{T}}) where {T} = T  # every wrapper has a T typevar
+
+for T in [:(Base.LogicalIndex{<:Any,<:Src}),
+          :(PermutedDimsArray{<:Any,<:Any,<:Any,<:Any,<:Src}),
+          :(WrappedReinterpretArray{<:Any,<:Any,<:Src}),
+          :(WrappedReshapedArray{<:Any,<:Any,<:Src}),
+          :(WrappedSubArray{<:Any,<:Any,<:Src})]
+    @eval begin
+        Base.parent(::Type{<:$T}) where {Src} = Src.name.wrapper
+    end
+end
+Base.parent(::Type{<:WrappedArray{<:Any,<:Any,<:Any,Dst}}) where {Dst} = Dst.name.wrapper
