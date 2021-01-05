@@ -8,30 +8,30 @@ permutation(::PermutedDimsArray{T,N,perm}) where {T,N,perm} = perm
 export WrappedArray
 
 adapt_structure(to, A::SubArray) =
-      SubArray(adapt(to, parent(A)), adapt(to, parentindices(A)))
+      SubArray(adapt(to, Base.parent(A)), adapt(to, parentindices(A)))
 adapt_structure(to, A::Base.LogicalIndex) =
       Base.LogicalIndex(adapt(to, A.mask))
 adapt_structure(to, A::PermutedDimsArray) =
-      PermutedDimsArray(adapt(to, parent(A)), permutation(A))
+      PermutedDimsArray(adapt(to, Base.parent(A)), permutation(A))
 adapt_structure(to, A::Base.ReshapedArray) =
-      Base.reshape(adapt(to, parent(A)), size(A))
+      Base.reshape(adapt(to, Base.parent(A)), size(A))
 adapt_structure(to, A::Base.ReinterpretArray) =
-      Base.reinterpret(eltype(A), adapt(to, parent(A)))
+      Base.reinterpret(Base.eltype(A), adapt(to, Base.parent(A)))
 
 adapt_structure(to, A::LinearAlgebra.Adjoint) =
-      LinearAlgebra.adjoint(adapt(to, parent(A)))
+      LinearAlgebra.adjoint(adapt(to, Base.parent(A)))
 adapt_structure(to, A::LinearAlgebra.Transpose) =
-      LinearAlgebra.transpose(adapt(to, parent(A)))
+      LinearAlgebra.transpose(adapt(to, Base.parent(A)))
 adapt_structure(to, A::LinearAlgebra.LowerTriangular) =
-      LinearAlgebra.LowerTriangular(adapt(to, parent(A)))
+      LinearAlgebra.LowerTriangular(adapt(to, Base.parent(A)))
 adapt_structure(to, A::LinearAlgebra.UnitLowerTriangular) =
-      LinearAlgebra.UnitLowerTriangular(adapt(to, parent(A)))
+      LinearAlgebra.UnitLowerTriangular(adapt(to, Base.parent(A)))
 adapt_structure(to, A::LinearAlgebra.UpperTriangular) =
-      LinearAlgebra.UpperTriangular(adapt(to, parent(A)))
+      LinearAlgebra.UpperTriangular(adapt(to, Base.parent(A)))
 adapt_structure(to, A::LinearAlgebra.UnitUpperTriangular) =
-      LinearAlgebra.UnitUpperTriangular(adapt(to, parent(A)))
+      LinearAlgebra.UnitUpperTriangular(adapt(to, Base.parent(A)))
 adapt_structure(to, A::LinearAlgebra.Diagonal) =
-      LinearAlgebra.Diagonal(adapt(to, parent(A)))
+      LinearAlgebra.Diagonal(adapt(to, Base.parent(A)))
 adapt_structure(to, A::LinearAlgebra.Tridiagonal) =
       LinearAlgebra.Tridiagonal(adapt(to, A.dl), adapt(to, A.d), adapt(to, A.du))
 
@@ -103,18 +103,18 @@ WrappedArray{T,N,Src,Dst} = Union{
 # https://github.com/JuliaLang/julia/pull/31563
 
 # accessors for extracting information about the wrapper type
-Base.ndims(::Type{<:Base.LogicalIndex}) = 1
-Base.ndims(::Type{<:LinearAlgebra.Adjoint}) = 2
-Base.ndims(::Type{<:LinearAlgebra.Transpose}) = 2
-Base.ndims(::Type{<:LinearAlgebra.LowerTriangular}) = 2
-Base.ndims(::Type{<:LinearAlgebra.UnitLowerTriangular}) = 2
-Base.ndims(::Type{<:LinearAlgebra.UpperTriangular}) = 2
-Base.ndims(::Type{<:LinearAlgebra.UnitUpperTriangular}) = 2
-Base.ndims(::Type{<:LinearAlgebra.Diagonal}) = 2
-Base.ndims(::Type{<:LinearAlgebra.Tridiagonal}) = 2
-Base.ndims(::Type{<:WrappedArray{<:Any,N}}) where {N} = N
+ndims(::Type{<:Base.LogicalIndex}) = 1
+ndims(::Type{<:LinearAlgebra.Adjoint}) = 2
+ndims(::Type{<:LinearAlgebra.Transpose}) = 2
+ndims(::Type{<:LinearAlgebra.LowerTriangular}) = 2
+ndims(::Type{<:LinearAlgebra.UnitLowerTriangular}) = 2
+ndims(::Type{<:LinearAlgebra.UpperTriangular}) = 2
+ndims(::Type{<:LinearAlgebra.UnitUpperTriangular}) = 2
+ndims(::Type{<:LinearAlgebra.Diagonal}) = 2
+ndims(::Type{<:LinearAlgebra.Tridiagonal}) = 2
+ndims(::Type{<:WrappedArray{<:Any,N}}) where {N} = N
 
-Base.eltype(::Type{<:WrappedArray{T}}) where {T} = T  # every wrapper has a T typevar
+eltype(::Type{<:WrappedArray{T}}) where {T} = T  # every wrapper has a T typevar
 
 for T in [:(Base.LogicalIndex{<:Any,<:Src}),
           :(PermutedDimsArray{<:Any,<:Any,<:Any,<:Any,<:Src}),
@@ -122,7 +122,7 @@ for T in [:(Base.LogicalIndex{<:Any,<:Src}),
           :(WrappedReshapedArray{<:Any,<:Any,<:Src}),
           :(WrappedSubArray{<:Any,<:Any,<:Src})]
     @eval begin
-        Base.parent(::Type{<:$T}) where {Src} = Src.name.wrapper
+        parent(::Type{<:$T}) where {Src} = Src.name.wrapper
     end
 end
-Base.parent(::Type{<:WrappedArray{<:Any,<:Any,<:Any,Dst}}) where {Dst} = Dst.name.wrapper
+parent(::Type{<:WrappedArray{<:Any,<:Any,<:Any,Dst}}) where {Dst} = Dst.name.wrapper

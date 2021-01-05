@@ -108,9 +108,9 @@ const d = CustomArray{Float64,1}(rand(3))
 @test_adapt CustomArray Tridiagonal(dl.arr, d.arr, du.arr) Tridiagonal(dl, d, du) AnyCustomArray
 
 @testset "Extracting type information" begin
-    @test ndims(LinearAlgebra.Transpose{Float64,Array{Float64,1}}) == 2
-    @test ndims(Adapt.WrappedSubArray{Float64,3,Array{Float64,3}}) == 3
+    @test Adapt.ndims(LinearAlgebra.Transpose{Float64,Array{Float64,1}}) == 2
+    @test Adapt.ndims(Adapt.WrappedSubArray{Float64,3,Array{Float64,3}}) == 3
 
-    @test parent(LinearAlgebra.Transpose{Float64,Array{Float64,1}}) == Array
-    @test parent(Adapt.WrappedSubArray{Float64,3,Array{Float64,3}}) == Array
+    @test Adapt.parent(LinearAlgebra.Transpose{Float64,Array{Float64,1}}) == Array
+    @test Adapt.parent(Adapt.WrappedSubArray{Float64,3,Array{Float64,3}}) == Array
 end
