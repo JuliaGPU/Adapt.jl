@@ -63,6 +63,39 @@ Adapt.adapt_structure(to, xs::Wrapper) = Wrapper(adapt(to, xs.arr))
 
 end
 
+# NOTE: if we put this in the preceding testset, unrelated tests start to allocate
+@testset "closures" begin
+
+# basic capture of a variable
+function closure1(x)
+    function foobar()
+        x
+    end
+    foobar
+end
+
+f = closure1(mat)
+@test f() == mat
+f′ = adapt(CustomArray, f)
+@test f′() == mat.arr
+@test @inferred(adapt(nothing, f)()) == f()
+
+# closure with sparams
+function closure2(A::CustomArray{T}=zeros(1), b::Number=0) where {T}
+    function f()
+        convert(T, 0)
+        A, A[1] == b
+    end
+    f
+end
+
+f = closure2(mat)
+@test f() == (mat, false)
+f′ = adapt(CustomArray, f)
+@test f′() == (mat.arr, false)
+
+end
+
 
 @testset "array wrappers" begin
 
