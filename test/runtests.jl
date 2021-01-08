@@ -20,12 +20,15 @@ const vec = CustomArray{Float64,1}(rand(2))
 
 const mat_bools = CustomArray{Bool,2}(rand(Bool,2,2))
 
-macro test_adapt(to, src, dst, typ=nothing)
+macro test_adapt(to, src_expr, dst_expr, typ=nothing)
     quote
-        @test adapt($to, $src) == $dst
-        @test typeof(adapt($to, $src)) == typeof($dst)
-        if $typ !== nothing
-            @test typeof($dst) <: $typ
+        src = $(esc(src_expr))
+        dst = $(esc(dst_expr))
+
+        @test adapt($(esc(to)), src) == dst
+        @test typeof(adapt($(esc(to)), src)) == typeof(dst)
+        if $(esc(typ)) !== nothing
+            @test typeof(dst) <: $(esc(typ))
         end
     end
 end
@@ -48,7 +51,7 @@ Adapt.adapt_structure(to, xs::Wrapper) = Wrapper(adapt(to, xs.arr))
 @test_adapt CustomArray Wrapper(mat.arr) Wrapper(mat)
 
 
-## base wrappers
+@testset "base structures" begin
 
 @test @inferred(adapt(nothing, NamedTuple())) == NamedTuple()
 @test_adapt CustomArray (mat.arr,) (mat,)
@@ -58,8 +61,46 @@ Adapt.adapt_structure(to, xs::Wrapper) = Wrapper(adapt(to, xs.arr))
 
 @test_adapt CustomArray (a=mat.arr,) (a=mat,)
 
+end
+
+# NOTE: if we put this in the preceding testset, unrelated tests start to allocate
+@testset "closures" begin
+
+# basic capture of a variable
+function closure1(x)
+    function foobar()
+        x
+    end
+    foobar
+end
+
+f = closure1(mat)
+@test f() == mat
+f′ = adapt(CustomArray, f)
+@test f′() == mat.arr
+@test @inferred(adapt(nothing, f)()) == f()
+
+# closure with sparams
+function closure2(A::CustomArray{T}=zeros(1), b::Number=0) where {T}
+    function f()
+        convert(T, 0)
+        A, A[1] == b
+    end
+    f
+end
+
+f = closure2(mat)
+@test f() == (mat, false)
+f′ = adapt(CustomArray, f)
+@test f′() == (mat.arr, false)
+
+end
+
+
+@testset "array wrappers" begin
+
 @test_adapt CustomArray view(mat.arr,:,:) view(mat,:,:) AnyCustomArray
-const inds = CustomArray{Int,1}([1,2])
+inds = CustomArray{Int,1}([1,2])
 @test_adapt CustomArray view(mat.arr,inds.arr,:) view(mat,inds,:) AnyCustomArray
 
 # NOTE: manual creation of PermutedDimsArray because permutedims collects
@@ -102,12 +143,15 @@ using LinearAlgebra
 
 @test_adapt CustomArray Diagonal(vec.arr) Diagonal(vec) AnyCustomArray
 
-const dl = CustomArray{Float64,1}(rand(2))
-const du = CustomArray{Float64,1}(rand(2))
-const d = CustomArray{Float64,1}(rand(3))
+dl = CustomArray{Float64,1}(rand(2))
+du = CustomArray{Float64,1}(rand(2))
+d = CustomArray{Float64,1}(rand(3))
 @test_adapt CustomArray Tridiagonal(dl.arr, d.arr, du.arr) Tridiagonal(dl, d, du) AnyCustomArray
 
-@testset "Extracting type information" begin
+end
+
+
+@testset "type information" begin
     @test Adapt.ndims(LinearAlgebra.Transpose{Float64,Array{Float64,1}}) == 2
     @test Adapt.ndims(Adapt.WrappedSubArray{Float64,3,Array{Float64,3}}) == 3
 
