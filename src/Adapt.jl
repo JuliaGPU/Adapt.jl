@@ -43,6 +43,7 @@ adapt_structure(to, x) = adapt_storage(to, x)
 adapt_storage(to, x) = x
 
 include("base.jl")
+include("macro.jl")
 include("wrappers.jl")
 
 end # module
