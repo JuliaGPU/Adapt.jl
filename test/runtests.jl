@@ -168,3 +168,20 @@ end
     @test Adapt.parent(LinearAlgebra.Transpose{Float64,Array{Float64,1}}) == Array
     @test Adapt.parent(Adapt.WrappedSubArray{Float64,3,Array{Float64,3}}) == Array
 end
+
+@testset "@adapt_structure" begin
+    
+    struct MyStruct{A,B}
+        a::A
+        b::B
+    end
+
+    Adapt.@adapt_structure MyStruct
+
+    u = ones(3)
+    v = zeros(5)
+
+    @test_adapt CustomArray MyStruct(u,v) MyStruct(CustomArray(u), CustomArray(v))
+    @test_adapt CustomArray MyStruct(u,1.0) MyStruct(CustomArray(u), 1.0)
+    
+end
