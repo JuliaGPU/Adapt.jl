@@ -169,12 +169,13 @@ end
     @test Adapt.parent(Adapt.WrappedSubArray{Float64,3,Array{Float64,3}}) == Array
 end
 
+
+struct MyStruct{A,B}
+    a::A
+    b::B
+end
+
 @testset "@adapt_structure" begin
-    
-    struct MyStruct{A,B}
-        a::A
-        b::B
-    end
 
     Adapt.@adapt_structure MyStruct
 
