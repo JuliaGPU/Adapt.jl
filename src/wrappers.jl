@@ -15,8 +15,15 @@ adapt_structure(to, A::PermutedDimsArray) =
       PermutedDimsArray(adapt(to, Base.parent(A)), permutation(A))
 adapt_structure(to, A::Base.ReshapedArray) =
       Base.reshape(adapt(to, Base.parent(A)), size(A))
-adapt_structure(to, A::Base.ReinterpretArray) =
-      Base.reinterpret(Base.eltype(A), adapt(to, Base.parent(A)))
+@static if isdefined(Base, :NonReshapedReinterpretArray)
+    adapt_structure(to, A::Base.NonReshapedReinterpretArray) =
+          Base.reinterpret(Base.eltype(A), adapt(to, Base.parent(A)))
+    adapt_structure(to, A::Base.ReshapedReinterpretArray) =
+          Base.reinterpret(reshape, Base.eltype(A), adapt(to, Base.parent(A)))
+else
+    adapt_structure(to, A::Base.ReinterpretArray) =
+          Base.reinterpret(Base.eltype(A), adapt(to, Base.parent(A)))
+end
 
 adapt_structure(to, A::LinearAlgebra.Adjoint) =
       LinearAlgebra.adjoint(adapt(to, Base.parent(A)))
