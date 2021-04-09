@@ -20,13 +20,21 @@ const vec = CustomArray{Float64,1}(rand(2))
 
 const mat_bools = CustomArray{Bool,2}(rand(Bool,2,2))
 
+# test that adaption of `src_expr` to `to` matches `dst_expr`:
+# - using ==
+# - comparing the types
+#
+# if `typ` is set, assert that `src` (or `dst`, as they have been asserted to be identical)
+# is a subtype of `typ`. this is useful to check that complex unions cover what's needed.
 macro test_adapt(to, src_expr, dst_expr, typ=nothing)
     quote
         src = $(esc(src_expr))
         dst = $(esc(dst_expr))
 
-        @test adapt($(esc(to)), src) == dst
-        @test typeof(adapt($(esc(to)), src)) == typeof(dst)
+        res = adapt($(esc(to)), src)
+        @test res == dst
+        @test typeof(res) == typeof(dst)
+
         if $(esc(typ)) !== nothing
             @test typeof(dst) <: $(esc(typ))
         end
@@ -41,6 +49,10 @@ AnyCustomArray{T,N} = Union{CustomArray,WrappedArray{T,N,CustomArray,CustomArray
 
 # idempotency
 @test_adapt CustomArray mat mat
+
+# to array
+@test_adapt Array mat mat.arr
+@test_adapt Array{Float32} mat Float32.(mat.arr)
 
 # custom wrapper
 struct Wrapper{T}
