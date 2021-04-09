@@ -42,8 +42,14 @@ adapt(to, x) = adapt_structure(to, x)
 adapt_structure(to, x) = adapt_storage(to, x)
 adapt_storage(to, x) = x
 
+# structure rules
 include("base.jl")
-include("macro.jl")
 include("wrappers.jl")
+
+# storage rules
+include("arrays.jl")
+
+# helpers
+include("macro.jl")
 
 end # module
