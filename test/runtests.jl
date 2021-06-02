@@ -188,7 +188,6 @@ struct MyStruct{A,B}
 end
 
 @testset "@adapt_structure" begin
-
     Adapt.@adapt_structure MyStruct
 
     u = ones(3)
@@ -196,5 +195,13 @@ end
 
     @test_adapt CustomArray MyStruct(u,v) MyStruct(CustomArray(u), CustomArray(v))
     @test_adapt CustomArray MyStruct(u,1.0) MyStruct(CustomArray(u), 1.0)
-    
+end
+
+
+@testset "Broadcast" begin
+    @test_adapt CustomArray Base.broadcasted(identity, mat.arr) Base.broadcasted(identity, mat)
+
+    f = (x)->((y)->(y,x))
+    bc = Base.broadcasted(f(mat.arr), (mat.arr,))
+    @test typeof(copy(adapt(CustomArray, bc))) == typeof(broadcast(f(mat), (mat,)))
 end
