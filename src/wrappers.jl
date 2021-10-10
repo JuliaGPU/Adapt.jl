@@ -7,10 +7,17 @@ permutation(::PermutedDimsArray{T,N,perm}) where {T,N,perm} = perm
 
 export WrappedArray
 
-adapt_structure(to, A::SubArray) =
-      SubArray(adapt(to, Base.parent(A)), adapt(to, parentindices(A)))
-adapt_structure(to, A::Base.LogicalIndex) =
-      Base.LogicalIndex(adapt(to, A.mask))
+@eval function adapt_structure(to, A::SubArray{T,N,<:Any,<:Any,L}) where {T,N,L}
+    parent = adapt(to, A.parent)
+    indices = adapt(to, A.indices)
+    $(Expr(:new, :(SubArray{T, N, typeof(parent), typeof(indices), L}), :parent, :indices, :(A.offset1), :(A.stride1)))
+end
+@eval function adapt_structure(to, A::Base.LogicalIndex{T}) where {T}
+    # LogicalIndex's constructor performs a costly (and sometimes impossible) `count`,
+    # so recreate the struct using low-level Expr(:new).
+    mask = adapt(to, A.mask)
+    $(Expr(:new, :(Base.LogicalIndex{T, typeof(mask)}), :mask, :(A.sum)))
+end
 adapt_structure(to, A::PermutedDimsArray) =
       PermutedDimsArray(adapt(to, Base.parent(A)), permutation(A))
 adapt_structure(to, A::Base.ReshapedArray) =
