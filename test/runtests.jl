@@ -162,6 +162,8 @@ using LinearAlgebra
 @test_adapt CustomArray UnitLowerTriangular(mat.arr) UnitLowerTriangular(mat) AnyCustomArray
 @test_adapt CustomArray UpperTriangular(mat.arr) UpperTriangular(mat) AnyCustomArray
 @test_adapt CustomArray UnitUpperTriangular(mat.arr) UnitUpperTriangular(mat) AnyCustomArray
+@test_adapt CustomArray Symmetric(mat.arr) Symmetric(mat) AnyCustomArray
+
 
 @test_adapt CustomArray Diagonal(vec.arr) Diagonal(vec) AnyCustomArray
 
