@@ -164,7 +164,6 @@ using LinearAlgebra
 @test_adapt CustomArray UnitUpperTriangular(mat.arr) UnitUpperTriangular(mat) AnyCustomArray
 @test_adapt CustomArray Symmetric(mat.arr) Symmetric(mat) AnyCustomArray
 
-
 @test_adapt CustomArray Diagonal(vec.arr) Diagonal(vec) AnyCustomArray
 
 dl = CustomArray{Float64,1}(rand(2))
