@@ -9,8 +9,6 @@ export WrappedArray
 
 adapt_structure(to, A::SubArray) =
       SubArray(adapt(to, Base.parent(A)), adapt(to, parentindices(A)))
-adapt_structure(to, A::Base.LogicalIndex) =
-      Base.LogicalIndex(adapt(to, A.mask))
 adapt_structure(to, A::PermutedDimsArray) =
       PermutedDimsArray(adapt(to, Base.parent(A)), permutation(A))
 adapt_structure(to, A::Base.ReshapedArray) =
@@ -23,6 +21,11 @@ adapt_structure(to, A::Base.ReshapedArray) =
 else
     adapt_structure(to, A::Base.ReinterpretArray) =
           Base.reinterpret(Base.eltype(A), adapt(to, Base.parent(A)))
+end
+@eval function adapt_structure(to, A::Base.LogicalIndex{T}) where T
+      # prevent re-calculating the count of booleans during LogicalIndex construction
+      mask = adapt(to, A.mask)
+      $(Expr(:new, :(Base.LogicalIndex{T, typeof(mask)}), :mask, :(A.sum)))
 end
 
 adapt_structure(to, A::LinearAlgebra.Adjoint) =
