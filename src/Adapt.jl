@@ -52,4 +52,6 @@ include("arrays.jl")
 # helpers
 include("macro.jl")
 
+function backend end
+
 end # module
