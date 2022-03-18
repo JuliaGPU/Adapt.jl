@@ -180,13 +180,18 @@ using LinearAlgebra
 @test_adapt CustomArray UpperTriangular(mat.arr) UpperTriangular(mat) AnyCustomArray
 @test_adapt CustomArray UnitUpperTriangular(mat.arr) UnitUpperTriangular(mat) AnyCustomArray
 @test_adapt CustomArray Symmetric(mat.arr) Symmetric(mat) AnyCustomArray
+@test_adapt CustomArray Hermitian(mat.arr) Hermitian(mat) AnyCustomArray
+@test_adapt CustomArray UpperHessenberg(mat.arr) UpperHessenberg(mat) AnyCustomArray
 
 @test_adapt CustomArray Diagonal(vec.arr) Diagonal(vec) AnyCustomArray
 
 dl = CustomArray{Float64,1}(rand(2))
 du = CustomArray{Float64,1}(rand(2))
 d = CustomArray{Float64,1}(rand(3))
+@test_adapt CustomArray Bidiagonal(d.arr, du.arr, :U) Bidiagonal(d, du, :U) AnyCustomArray
+@test_adapt CustomArray Bidiagonal(d.arr, dl.arr, :L) Bidiagonal(d, dl, :L) AnyCustomArray
 @test_adapt CustomArray Tridiagonal(dl.arr, d.arr, du.arr) Tridiagonal(dl, d, du) AnyCustomArray
+@test_adapt CustomArray SymTridiagonal(d.arr, du.arr) SymTridiagonal(d, du) AnyCustomArray
 
 end
 
