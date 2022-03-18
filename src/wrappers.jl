@@ -53,9 +53,9 @@ adapt_structure(to, A::LinearAlgebra.Tridiagonal) =
 adapt_structure(to, A::LinearAlgebra.SymTridiagonal) =
       LinearAlgebra.SymTridiagonal(adapt(to, A.dv), adapt(to, A.ev))
 adapt_structure(to, A::LinearAlgebra.Symmetric) =
-      LinearAlgebra.Symmetric(adapt(to, Base.parent(A)))
+      LinearAlgebra.Symmetric(adapt(to, Base.parent(A)), Symbol(A.uplo))
 adapt_structure(to, A::LinearAlgebra.Hermitian) =
-      LinearAlgebra.Hermitian(adapt(to, Base.parent(A)))
+      LinearAlgebra.Hermitian(adapt(to, Base.parent(A)), Symbol(A.uplo))
 adapt_structure(to, A::LinearAlgebra.UpperHessenberg) =
       LinearAlgebra.UpperHessenberg(adapt(to, Base.parent(A)))
 
