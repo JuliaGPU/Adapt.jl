@@ -46,10 +46,18 @@ adapt_structure(to, A::LinearAlgebra.UnitUpperTriangular) =
       LinearAlgebra.UnitUpperTriangular(adapt(to, Base.parent(A)))
 adapt_structure(to, A::LinearAlgebra.Diagonal) =
       LinearAlgebra.Diagonal(adapt(to, Base.parent(A)))
+adapt_structure(to, A::LinearAlgebra.Bidiagonal) =
+      LinearAlgebra.Bidiagonal(adapt(to, A.dv), adapt(to, A.ev), Symbol(A.uplo))
 adapt_structure(to, A::LinearAlgebra.Tridiagonal) =
       LinearAlgebra.Tridiagonal(adapt(to, A.dl), adapt(to, A.d), adapt(to, A.du))
+adapt_structure(to, A::LinearAlgebra.SymTridiagonal) =
+      LinearAlgebra.SymTridiagonal(adapt(to, A.dv), adapt(to, A.ev))
 adapt_structure(to, A::LinearAlgebra.Symmetric) =
       LinearAlgebra.Symmetric(adapt(to, Base.parent(A)))
+adapt_structure(to, A::LinearAlgebra.Hermitian) =
+      LinearAlgebra.Hermitian(adapt(to, Base.parent(A)))
+adapt_structure(to, A::LinearAlgebra.UpperHessenberg) =
+      LinearAlgebra.UpperHessenberg(adapt(to, Base.parent(A)))
 
 
 # we generally don't support multiple layers of wrappers, but some occur often
@@ -100,8 +108,12 @@ const WrappedArray{T,N,Src,Dst} = Union{
       LinearAlgebra.UpperTriangular{T,<:Dst},
       LinearAlgebra.UnitUpperTriangular{T,<:Dst},
       LinearAlgebra.Diagonal{T,<:Dst},
+      LinearAlgebra.Bidiagonal{T,<:Dst},
       LinearAlgebra.Tridiagonal{T,<:Dst},
+      LinearAlgebra.SymTridiagonal{T,<:Dst},
       LinearAlgebra.Symmetric{T,<:Dst},
+      LinearAlgebra.Hermitian{T,<:Dst},
+      LinearAlgebra.UpperHessenberg{T,<:Dst},
 
       WrappedReinterpretArray{T,N,<:Src},
       WrappedReshapedArray{T,N,<:Src},
@@ -128,7 +140,12 @@ ndims(::Type{<:LinearAlgebra.UnitLowerTriangular}) = 2
 ndims(::Type{<:LinearAlgebra.UpperTriangular}) = 2
 ndims(::Type{<:LinearAlgebra.UnitUpperTriangular}) = 2
 ndims(::Type{<:LinearAlgebra.Diagonal}) = 2
+ndims(::Type{<:LinearAlgebra.Bidiagonal}) = 2
 ndims(::Type{<:LinearAlgebra.Tridiagonal}) = 2
+ndims(::Type{<:LinearAlgebra.SymTridiagonal}) = 2
+ndims(::Type{<:LinearAlgebra.Symmetric}) = 2
+ndims(::Type{<:LinearAlgebra.Hermitian}) = 2
+ndims(::Type{<:LinearAlgebra.UpperHessenberg}) = 2
 ndims(::Type{<:WrappedArray{<:Any,N}}) where {N} = N
 
 eltype(::Type{<:WrappedArray{T}}) where {T} = T  # every wrapper has a T typevar
