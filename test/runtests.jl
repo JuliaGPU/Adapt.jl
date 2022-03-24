@@ -201,10 +201,10 @@ end
 
 
 @testset "type information" begin
-    @test Adapt.ndims(LinearAlgebra.Transpose{Float64,Array{Float64,1}}) == 2
+    @test Adapt.ndims(Transpose{Float64,Array{Float64,1}}) == 2
     @test Adapt.ndims(Adapt.WrappedSubArray{Float64,3,Array{Float64,3}}) == 3
 
-    @test Adapt.parent(LinearAlgebra.Transpose{Float64,Array{Float64,1}}) == Array
+    @test Adapt.parent(Transpose{Float64,Array{Float64,1}}) == Array
     @test Adapt.parent(Adapt.WrappedSubArray{Float64,3,Array{Float64,3}}) == Array
 end
 
