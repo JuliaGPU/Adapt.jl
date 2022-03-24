@@ -101,16 +101,16 @@ const WrappedArray{T,N,Src,Dst} = Union{
       #Base.ReshapedArray{T,N,<:Src},
       #Base.ReinterpretArray{T,N,<:Any,<:Src},
 
-      LinearAlgebra.Adjoint{T,<:Dst},
-      LinearAlgebra.Transpose{T,<:Dst},
+      LinearAlgebra.Adjoint{T,<:Src},    # The adjoint/transpose of a Vector has shape 1xN, so is a 2d
+      LinearAlgebra.Transpose{T,<:Src},  # wrapper around a 1d array, hence use Src not Dst
       LinearAlgebra.LowerTriangular{T,<:Dst},
       LinearAlgebra.UnitLowerTriangular{T,<:Dst},
       LinearAlgebra.UpperTriangular{T,<:Dst},
       LinearAlgebra.UnitUpperTriangular{T,<:Dst},
-      LinearAlgebra.Diagonal{T,<:Dst},
-      LinearAlgebra.Bidiagonal{T,<:Dst},
-      LinearAlgebra.Tridiagonal{T,<:Dst},
-      LinearAlgebra.SymTridiagonal{T,<:Dst},
+      LinearAlgebra.Diagonal{T,<:Src},
+      LinearAlgebra.Bidiagonal{T,<:Src},
+      LinearAlgebra.Tridiagonal{T,<:Src},
+      LinearAlgebra.SymTridiagonal{T,<:Src},
       LinearAlgebra.Symmetric{T,<:Dst},
       LinearAlgebra.Hermitian{T,<:Dst},
       LinearAlgebra.UpperHessenberg{T,<:Dst},
@@ -152,6 +152,12 @@ eltype(::Type{<:WrappedArray{T}}) where {T} = T  # every wrapper has a T typevar
 
 for T in [:(Base.LogicalIndex{<:Any,<:Src}),
           :(PermutedDimsArray{<:Any,<:Any,<:Any,<:Any,<:Src}),
+          :(LinearAlgebra.Adjoint{<:Any,<:Src}),
+          :(LinearAlgebra.Transpose{<:Any,<:Src}),
+          :(LinearAlgebra.Diagonal{<:Any,<:Src}),
+          :(LinearAlgebra.Bidiagonal{<:Any,<:Src}),
+          :(LinearAlgebra.Tridiagonal{<:Any,<:Src}),
+          :(LinearAlgebra.SymTridiagonal{<:Any,<:Src}),
           :(WrappedReinterpretArray{<:Any,<:Any,<:Src}),
           :(WrappedReshapedArray{<:Any,<:Any,<:Src}),
           :(WrappedSubArray{<:Any,<:Any,<:Src})]
