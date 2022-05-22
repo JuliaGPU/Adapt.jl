@@ -52,4 +52,7 @@ include("arrays.jl")
 # helpers
 include("macro.jl")
 
+# compute devices
+include("computedevs.jl")
+
 end # module
