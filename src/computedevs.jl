@@ -4,7 +4,7 @@
 """
     abstract type AbstractComputingDevice
 
-Supertype for CPU and GPU computing devices.
+Supertype for arbitrary computing devices (CPU, GPU, etc.).
 
 `adapt(dev::AbstractComputingDevice, x)` adapts `x` for `dev`.
 """
