@@ -5,7 +5,7 @@ using Test
 # custom array type
 
 struct CustomArray{T,N} <: AbstractArray{T,N}
-    arr::Array
+    arr::Array{T,N}
 end
 
 CustomArray(x::Array{T,N}) where {T,N} = CustomArray{T,N}(x)
@@ -31,7 +31,7 @@ macro test_adapt(to, src_expr, dst_expr, typ=nothing)
         src = $(esc(src_expr))
         dst = $(esc(dst_expr))
 
-        res = adapt($(esc(to)), src)
+        res = @inferred(adapt($(esc(to)), src))
         @test res == dst
         @test typeof(res) == typeof(dst)
 

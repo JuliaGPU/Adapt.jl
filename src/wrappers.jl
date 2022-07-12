@@ -9,8 +9,12 @@ export WrappedArray
 
 adapt_structure(to, A::SubArray) =
       SubArray(adapt(to, Base.parent(A)), adapt(to, parentindices(A)))
-adapt_structure(to, A::PermutedDimsArray) =
-      PermutedDimsArray(adapt(to, Base.parent(A)), permutation(A))
+function adapt_structure(to, A::PermutedDimsArray)
+      perm = permutation(A)
+      iperm = invperm(perm)
+      A′ = adapt(to, Base.parent(A))
+      PermutedDimsArray{Base.eltype(A′),Base.ndims(A′),perm,iperm,typeof(A′)}(A′)
+end
 adapt_structure(to, A::Base.ReshapedArray) =
       Base.reshape(adapt(to, Base.parent(A)), size(A))
 @static if isdefined(Base, :NonReshapedReinterpretArray)
