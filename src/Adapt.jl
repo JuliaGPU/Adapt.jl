@@ -39,6 +39,21 @@ If we want this to work with custom structures, we need to extend `adapt_structu
 """
 adapt(to, x) = adapt_structure(to, x)
 
+"""
+    adapt(to)
+
+Create a function that adapts its argument according to `to`.
+If no specific adaptions have been registered for `to`, the returned function will be equivalent to `identity`.
+"""
+adapt(to) = Base.Fix1(adapt, to)
+if VERSION < v"1.9.0-DEV.857"
+    @eval function adapt(to::Type{T}) where {T}
+        (@isdefined T) || return Base.Fix1(adapt, to)
+        AT = Base.Fix1{typeof(adapt),Type{T}}
+        return $(Expr(:new, :AT, :adapt, :to))
+    end
+end
+
 adapt_structure(to, x) = adapt_storage(to, x)
 adapt_storage(to, x) = x
 
