@@ -1,13 +1,6 @@
-# help struct to keep internal stability
-struct AdaptTo{T} <: Function
-  to::T
-  AdaptTo(to) = new{Core.Typeof(to)}(to)
-end
-(f::AdaptTo)(x) = adapt(f.to, x)
-
 # predefined adaptors for working with types from the Julia standard library
 
-adapt_structure(to, xs::Union{Tuple,NamedTuple}) = map(AdaptTo(to), xs)
+adapt_structure(to, xs::Union{Tuple,NamedTuple}) = map(adapt(to), xs)
 
 
 ## Closures
