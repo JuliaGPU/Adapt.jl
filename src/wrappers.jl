@@ -55,15 +55,15 @@ adapt_structure(to, A::LinearAlgebra.Symmetric) =
 # we generally don't support multiple layers of wrappers, but some occur often
 # and are supported by Base aliases like StridedArray.
 
-WrappedReinterpretArray{T,N,Src} =
+const WrappedReinterpretArray{T,N,Src} =
       Base.ReinterpretArray{T,N,<:Any,<:Union{Src,SubArray{<:Any,<:Any,Src}}}
 
-WrappedReshapedArray{T,N,Src} =
+const WrappedReshapedArray{T,N,Src} =
       Base.ReshapedArray{T,N,<:Union{Src,
                                      SubArray{<:Any,<:Any,Src},
                                      WrappedReinterpretArray{<:Any,<:Any,Src}}}
 
-WrappedSubArray{T,N,Src} =
+const WrappedSubArray{T,N,Src} =
       SubArray{T,N,<:Union{Src,
                            WrappedReshapedArray{<:Any,<:Any,Src},
                            WrappedReinterpretArray{<:Any,<:Any,Src}}}
@@ -86,7 +86,7 @@ the same dimensionality as the inner array). When creating an alias for this typ
 Only use this type for dispatch purposes. To convert instances of an array wrapper, use
 [`adapt`](@ref).
 """
-WrappedArray{T,N,Src,Dst} = Union{
+const WrappedArray{T,N,Src,Dst} = Union{
       #SubArray{T,N,<:Src},
       Base.LogicalIndex{T,<:Src},
       PermutedDimsArray{T,N,<:Any,<:Any,<:Src},
