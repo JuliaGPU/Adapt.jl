@@ -86,14 +86,14 @@ function closure1(x)
     foobar
 end
 
-f = closure1(mat)
-@test f() == mat
+f = closure1(mat.arr)
+@test f() === mat.arr
 f′ = adapt(CustomArray, f)
-@test f′() == mat.arr
-@test @inferred(adapt(nothing, f)()) == f()
+@test f′() === mat
+@test @inferred(adapt(nothing, f)()) === f()
 
 # closure with sparams
-function closure2(A::CustomArray{T}=zeros(1), b::Number=0) where {T}
+function closure2(A::AbstractArray{T}=zeros(1), b::Number=0) where {T}
     function f()
         convert(T, 0)
         A, A[1] == b
@@ -101,10 +101,27 @@ function closure2(A::CustomArray{T}=zeros(1), b::Number=0) where {T}
     f
 end
 
-f = closure2(mat)
-@test f() == (mat, false)
+f = closure2(mat.arr)
+@test f() === (mat.arr, false)
 f′ = adapt(CustomArray, f)
-@test f′() == (mat.arr, false)
+@test f′() === (mat, false)
+
+# closure with box
+x1 = CustomArray{Int,1}([1])
+x2 = CustomArray{Int,1}([2])
+x3 = CustomArray{Int,1}([3])
+function closure3(a)
+    b = "whatever"
+    f(c) = (a, b, c)
+    b = x2.arr
+    return f
+end
+
+f = closure3(x1.arr)
+@test f(x3.arr) === (x1.arr, x2.arr, x3.arr)
+f′ = adapt(CustomArray, f)
+@test f′(x3.arr) === (x1, x2, x3.arr)
+# NOTE: actual arguments should be adapted by the caller
 
 end
 
