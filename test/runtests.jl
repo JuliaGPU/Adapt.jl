@@ -223,3 +223,8 @@ end
     bc = Base.broadcasted(f(mat.arr), (mat.arr,))
     @test typeof(copy(adapt(CustomArray, bc))) == typeof(broadcast(f(mat), (mat,)))
 end
+
+@testset "StaticArrays" begin
+    using StaticArrays
+    adapt(SArray, [1,2,3]) isa SArray
+end
