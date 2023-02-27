@@ -67,11 +67,14 @@ include("arrays.jl")
 # helpers
 include("macro.jl")
 
-import Requires
+if !isdefined(Base, :get_extension)
+using Requires
+end
+
 @static if !isdefined(Base, :get_extension)
-    function __init__()
-        Requires.@require StaticArrays = "90137ffa-7385-5640-81b9-e52037218182" begin include("../ext/AdaptStaticArraysExt.jl") end
-    end
+function __init__()
+    @require StaticArrays = "90137ffa-7385-5640-81b9-e52037218182" begin include("../ext/AdaptStaticArraysExt.jl") end
+end
 end
 
 end # module
