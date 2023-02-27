@@ -226,5 +226,9 @@ end
 
 @testset "StaticArrays" begin
     using StaticArrays
-    adapt(SArray, [1,2,3]) isa SArray
+    @test_adapt SArray{Tuple{3}} [1,2,3] SArray{Tuple{3}}([1,2,3])
+
+    # can't possibly infer this one, so not using @test_adapt
+    #@test_adapt SArray           [1,2,3] SArray{Tuple{3}}([1,2,3])
+    @test adapt(SArray, [1,2,3]) === SArray{Tuple{3}}([1,2,3])
 end
