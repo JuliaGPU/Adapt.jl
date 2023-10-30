@@ -129,6 +129,7 @@ ndims(::Type{<:LinearAlgebra.UpperTriangular}) = 2
 ndims(::Type{<:LinearAlgebra.UnitUpperTriangular}) = 2
 ndims(::Type{<:LinearAlgebra.Diagonal}) = 2
 ndims(::Type{<:LinearAlgebra.Tridiagonal}) = 2
+ndims(::Type{<:LinearAlgebra.Symmetric}) = 2
 ndims(::Type{<:WrappedArray{<:Any,N}}) where {N} = N
 
 eltype(::Type{<:WrappedArray{T}}) where {T} = T  # every wrapper has a T typevar
