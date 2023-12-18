@@ -8,7 +8,6 @@ struct CustomArray{T,N} <: AbstractArray{T,N}
     arr::Array{T,N}
 end
 
-CustomArray(x::Array{T,N}) where {T,N} = CustomArray{T,N}(x)
 Adapt.adapt_storage(::Type{<:CustomArray}, xs::Array) = CustomArray(xs)
 
 Base.size(x::CustomArray, y...) = size(x.arr, y...)
@@ -58,7 +57,6 @@ AnyCustomArray{T,N} = Union{CustomArray,WrappedArray{T,N,CustomArray,CustomArray
 struct Wrapper{T}
     arr::T
 end
-Wrapper(x::T) where T = Wrapper{T}(x)
 Adapt.adapt_structure(to, xs::Wrapper) = Wrapper(adapt(to, xs.arr))
 @test_adapt CustomArray Wrapper(mat.arr) Wrapper(mat)
 
@@ -192,12 +190,13 @@ end
 
 
 @testset "type information" begin
-    @test Adapt.ndims(LinearAlgebra.Transpose{Float64,Array{Float64,1}}) == 2
-    @test Adapt.ndims(LinearAlgebra.Symmetric{Float64,Matrix{Float64}}) == 2
-    @test Adapt.ndims(Adapt.WrappedSubArray{Float64,3,Array{Float64,3}}) == 3
+    # single wrapping
+    @test parent_type(Transpose{Int,Array{Int,1}}) == Array{Int,1}
+    @test parent_type(Transpose{Int,Transpose{Int,Array{Int,1}}}) == Transpose{Int,Array{Int,1}}
 
-    @test Adapt.parent(LinearAlgebra.Transpose{Float64,Array{Float64,1}}) == Array
-    @test Adapt.parent(Adapt.WrappedSubArray{Float64,3,Array{Float64,3}}) == Array
+    # double wrapping
+    @test unwrap_type(Transpose{Int,Array{Int,1}}) == Array{Int,1}
+    @test unwrap_type(Transpose{Int,Transpose{Int,Array{Int,1}}}) == Array{Int,1}
 end
 
 
