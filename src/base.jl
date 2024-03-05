@@ -2,9 +2,7 @@
 
 # Use recursion to avoid inference bail-out in `map`
 #adapt_structure(to, xs::Union{Tuple,NamedTuple}) = map(adapt(to), xs)
-adapt_structure(to, xs::NamedTuple{names}) where {names} =
-    NamedTuple{names}(adapt_structure(to, Tuple(xs)))
-
+adapt_structure(to, xs::NamedTuple) = map(adapt(to), xs)
 adapt_structure(to, xs::Tuple) = _adapt_tuple_structure(to, xs)
 _adapt_tuple_structure(to, xs::Tuple) =
   (adapt(to, first(xs)), _adapt_tuple_structure(to, Base.tail(xs))...)
