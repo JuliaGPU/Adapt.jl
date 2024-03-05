@@ -1,13 +1,13 @@
 # predefined adaptors for working with types from the Julia standard library
 
-_radapt_structure(to, xs::Tuple) =
-  (adapt(to, first(xs)), _radapt_structure(to, Base.tail(xs))...)
-_radapt_structure(to, xs::Tuple{}) = ()
-_radapt_structure(to, xs::Tuple{<:Any}) =
-  (adapt(to, first(xs)), )
 # Use recursion on tuples to avoid inference bail-out in `map`
-adapt_structure(to, xs::Tuple) = _radapt_structure(to, xs)
+#adapt_structure(to, xs::Union{Tuple,NamedTuple}) = map(adapt(to), xs)
 adapt_structure(to, xs::NamedTuple) = map(x->adapt(to,x), xs)
+adapt_structure(to, xs::Tuple) = _adapt_tuple_structure(to, xs)
+_adapt_tuple_structure(to, xs::Tuple) =
+  (adapt(to, first(xs)), _adapt_tuple_structure(to, Base.tail(xs))...)
+_adapt_tuple_structure(to, xs::Tuple{}) = ()
+_adapt_tuple_structure(to, xs::Tuple{<:Any}) = (adapt(to, first(xs)), )
 
 
 ## Closures
