@@ -16,6 +16,7 @@ _adapt_tuple_structure(to, xs::Tuple) =
 _adapt_tuple_structure(to, xs::Tuple{}) = ()
 _adapt_tuple_structure(to, xs::Tuple{<:Any}) = (adapt(to, first(xs)), )
 
+
 ## Closures
 
 # two things can be captured: static parameters, and actual values (fields)
@@ -63,3 +64,22 @@ adapt_structure(to, bc::Broadcasted{Style}) where Style =
 
 adapt_structure(to, ex::Extruded) =
     Extruded(adapt(to, ex.x), ex.keeps, ex.defaults)
+
+
+## Ranges
+
+adapt_structure(to, r::UnitRange) =
+  UnitRange(adapt(to, r.start), adapt(to, r.stop))
+
+adapt_structure(to, r::Base.OneTo) = Base.OneTo(adapt(to, r.stop))
+
+adapt_structure(to, r::StepRange) =
+  StepRange(adapt(to, r.start), adapt(to, r.step), adapt(to, r.stop))
+
+adapt_structure(to, r::StepRangeLen) =
+  StepRangeLen(adapt(to, r.ref), adapt(to, r.step), r.len, r.offset)
+
+adapt_structure(to, r::Base.Slice) = Base.Slice(adapt(to, r.indices))
+
+adapt_structure(to, r::LinRange) =
+  LinRange(adapt(to, r.start), adapt(to, r.stop), r.len)
