@@ -232,3 +232,15 @@ end
     #@test_adapt SArray           [1,2,3] SArray{Tuple{3}}([1,2,3])
     @test adapt(SArray, [1,2,3]) === SArray{Tuple{3}}([1,2,3])
 end
+
+@testset "Ranges" begin
+    # normally these fall back to `convert(Array, r)`, so we only need to test
+    # that the type matches
+
+    @test adapt(Array, 1:10) === 1:10
+    @test adapt(Array, Base.OneTo(10)) === Base.OneTo(10)
+    @test adapt(Array, 1:2:10) === 1:2:10
+    @test adapt(Array, 1.:2.:10.) === 1.:2.:10.
+    @test adapt(Array, Base.Slice(1:10)) === Base.Slice(1:10)
+    @test adapt(Array, LinRange(1,2,10)) === LinRange(1,2,10)
+end
