@@ -76,8 +76,8 @@ adapt_structure(to, r::Base.OneTo) = Base.OneTo(adapt(to, r.stop))
 adapt_structure(to, r::StepRange) =
   StepRange(adapt(to, r.start), adapt(to, r.step), adapt(to, r.stop))
 
-adapt_structure(to, r::StepRangeLen) =
-  StepRangeLen(adapt(to, r.ref), adapt(to, r.step), r.len, r.offset)
+adapt_structure(to, r::StepRangeLen{T}) where T =
+  StepRangeLen{T}(adapt(to, r.ref), adapt(to, r.step), r.len, r.offset)
 
 adapt_structure(to, r::Base.Slice) = Base.Slice(adapt(to, r.indices))
 
