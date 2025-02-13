@@ -73,8 +73,12 @@ end
 
 @static if !isdefined(Base, :get_extension)
 function __init__()
-    @require SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf" begin include("../ext/AdaptSparseArraysExt.jl") end
-    @require StaticArrays = "90137ffa-7385-5640-81b9-e52037218182" begin include("../ext/AdaptStaticArraysExt.jl") end
+    @require SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf" begin
+        include("../ext/AdaptSparseArraysExt.jl")
+    end
+    @require StaticArrays = "90137ffa-7385-5640-81b9-e52037218182" begin
+        include("../ext/AdaptStaticArraysExt.jl")
+    end
 end
 end
 
