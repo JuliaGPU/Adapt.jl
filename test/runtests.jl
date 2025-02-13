@@ -224,6 +224,17 @@ end
     @test typeof(copy(adapt(CustomArray, bc))) == typeof(broadcast(f(mat), (mat,)))
 end
 
+@testset "SparseArrays" begin
+    using SparseArrays
+    m = sparse([1, 2], [2, 1], [1, 2])
+    @test_adapt Array m m
+    @test_adapt Array{Float64} m SparseMatrixCSC{Float64}(m)
+
+    v = sparsevec([1, 3], [1, 2])
+    @test_adapt Array v v
+    @test_adapt Array{Float64} v SparseVector{Float64}(v)
+end
+
 @testset "StaticArrays" begin
     using StaticArrays
     @test_adapt SArray{Tuple{3}} [1,2,3] SArray{Tuple{3}}([1,2,3])
