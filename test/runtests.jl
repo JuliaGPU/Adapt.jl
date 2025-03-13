@@ -255,3 +255,7 @@ end
     @test adapt(Array, Base.Slice(1:10)) === Base.Slice(1:10)
     @test adapt(Array, LinRange(1,2,10)) === LinRange(1,2,10)
 end
+
+@testset "CartesianIndices" begin
+    @test adapt(Array, CartesianIndices((1,2,3))) === CartesianIndices((1,2,3))
+end
