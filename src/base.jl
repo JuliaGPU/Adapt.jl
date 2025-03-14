@@ -83,3 +83,7 @@ adapt_structure(to, r::Base.Slice) = Base.Slice(adapt(to, r.indices))
 
 adapt_structure(to, r::LinRange) =
   LinRange(adapt(to, r.start), adapt(to, r.stop), r.len)
+
+## CartesianIndices
+
+adapt_structure(to, ci::CartesianIndices) = ci
