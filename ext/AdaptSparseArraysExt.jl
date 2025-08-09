@@ -1,7 +1,7 @@
 module AdaptSparseArraysExt
 
 using Adapt
-isdefined(Base, :get_extension) ? (using SparseArrays) : (using ..SparseArrays)
+using SparseArrays
 
 Adapt.adapt_storage(::Type{Array}, xs::SparseVector) = xs
 Adapt.adapt_storage(::Type{Array}, xs::SparseMatrixCSC) = xs
