@@ -100,8 +100,10 @@ const WrappedArray{T,N,Src,Dst} = Union{
       LinearAlgebra.UpperTriangular{T,<:Dst},
       LinearAlgebra.UnitUpperTriangular{T,<:Dst},
       LinearAlgebra.Diagonal{T,<:Dst},
+      LinearAlgebra.Bidiagonal{T,<:Dst},
       LinearAlgebra.Tridiagonal{T,<:Dst},
       LinearAlgebra.Symmetric{T,<:Dst},
+      LinearAlgebra.Hermitian{T,<:Dst},
 
       WrappedReinterpretArray{T,N,<:Src},
       WrappedReshapedArray{T,N,<:Src},
