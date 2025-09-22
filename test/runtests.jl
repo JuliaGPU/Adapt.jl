@@ -186,7 +186,7 @@ dl = CustomArray{Float64,1}(rand(2))
 du = CustomArray{Float64,1}(rand(2))
 d = CustomArray{Float64,1}(rand(3))
 @test_adapt CustomArray Tridiagonal(dl.arr, d.arr, du.arr) Tridiagonal(dl, d, du) AnyCustomArray
-@test_adapt CustomArray Bidiagonal(d.arr, du.arr) Bidiagonal(d, du) AnyCustomArray
+@test_adapt CustomArray Bidiagonal(d.arr, du.arr, 'U') Bidiagonal(d, du, 'U') AnyCustomArray
 end
 
 
