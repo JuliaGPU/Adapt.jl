@@ -48,8 +48,12 @@ adapt_structure(to, A::LinearAlgebra.Diagonal) =
       LinearAlgebra.Diagonal(adapt(to, parent(A)))
 adapt_structure(to, A::LinearAlgebra.Tridiagonal) =
       LinearAlgebra.Tridiagonal(adapt(to, A.dl), adapt(to, A.d), adapt(to, A.du))
+adapt_structure(to, A::LinearAlgebra.Bidiagonal) =
+      LinearAlgebra.Bidiagonal(adapt(to, A.dv), adapt(to, A.ev), A.uplo)
 adapt_structure(to, A::LinearAlgebra.Symmetric) =
       LinearAlgebra.Symmetric(adapt(to, parent(A)))
+adapt_structure(to, A::LinearAlgebra.Hermitian) =
+      LinearAlgebra.Hermitian(adapt(to, parent(A)))
 
 
 # we generally don't support multiple layers of wrappers, but some occur often
@@ -100,8 +104,10 @@ const WrappedArray{T,N,Src,Dst} = Union{
       LinearAlgebra.UpperTriangular{T,<:Dst},
       LinearAlgebra.UnitUpperTriangular{T,<:Dst},
       LinearAlgebra.Diagonal{T,<:Dst},
+      LinearAlgebra.Bidiagonal{T,<:Dst},
       LinearAlgebra.Tridiagonal{T,<:Dst},
       LinearAlgebra.Symmetric{T,<:Dst},
+      LinearAlgebra.Hermitian{T,<:Dst},
 
       WrappedReinterpretArray{T,N,<:Src},
       WrappedReshapedArray{T,N,<:Src},
