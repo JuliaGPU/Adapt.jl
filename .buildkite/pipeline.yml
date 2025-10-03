@@ -31,11 +31,8 @@ steps:
             println("--- :julia: Installing CUDA")
             withenv("JULIA_PKG_PRECOMPILE_AUTO" => 0,
                     "JULIA_PKG_DEVDIR" => devdir) do
-              Pkg.develop("CUDA")
-              Pkg.activate(cuda)
-
               try
-                Pkg.develop([PackageSpec(path=adapt), PackageSpec(path=cuda)])
+                Pkg.develop("CUDA")
                 TestEnv.activate()
               catch err
                 @error "Could not install CUDA" exception=(err,catch_backtrace())
@@ -102,11 +99,8 @@ steps:
             println("--- :julia: Installing AMDGPU")
             withenv("JULIA_PKG_PRECOMPILE_AUTO" => 0,
                     "JULIA_PKG_DEVDIR" => devdir) do
-              Pkg.develop("AMDGPU")
-              Pkg.activate(amdgpu)
-
               try
-                Pkg.develop([PackageSpec(path=adapt), PackageSpec(path=amdgpu)])
+                Pkg.develop("AMDGPU")
                 TestEnv.activate()
               catch err
                 @error "Could not install AMDGPU" exception=(err,catch_backtrace())
