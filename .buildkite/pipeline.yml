@@ -33,7 +33,7 @@ steps:
                     "JULIA_PKG_DEVDIR" => devdir) do
               try
                 Pkg.develop("CUDA")
-                TestEnv.activate()
+                TestEnv.activate("CUDA")
               catch err
                 @error "Could not install CUDA" exception=(err,catch_backtrace())
                 exit(3)
@@ -101,7 +101,7 @@ steps:
                     "JULIA_PKG_DEVDIR" => devdir) do
               try
                 Pkg.develop("AMDGPU")
-                TestEnv.activate()
+                TestEnv.activate("AMDGPU")
               catch err
                 @error "Could not install AMDGPU" exception=(err,catch_backtrace())
                 exit(3)
