@@ -4,8 +4,8 @@
 |:-----------------------------------------------------:|:-------------------------------:|
 | [![][ci-img]][ci-url] [![][pkgeval-img]][pkgeval-url] | [![][codecov-img]][codecov-url] |
 
-[ci-img]: https://github.com/JuliaGPU/Adapt.jl/workflows/CI/badge.svg
-[ci-url]: https://github.com/JuliaGPU/Adapt.jl/actions?query=workflow:CI
+[ci-img]: https://github.com/JuliaGPU/Adapt.jl/workflows/Test/badge.svg
+[ci-url]: https://github.com/JuliaGPU/Adapt.jl/actions?query=workflow:Test
 
 [pkgeval-img]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/A/Adapt.svg
 [pkgeval-url]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/A/Adapt.html
