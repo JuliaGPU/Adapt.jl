@@ -40,8 +40,8 @@ adapt_storage(::Type{<:CuArray}, xs::AbstractArray) = convert(CuArray, xs)
 Implementations of `adapt_storage` will typically be part of libraries that use
 Adapt. For example, CUDA.jl defines methods of
 `adapt_storage(::Type{<:CuArray}, ...)` and uses that to convert different kinds
-of arrays, while CUDAnative.jl provides implementations of
-`adapt_storage(::CUDAnative.Adaptor, ...)` to convert various values to
+of arrays, while `CUDA.jl` provides implementations of
+`adapt_storage(::CUDA.Adaptor, ...)` to convert various values to
 GPU-compatible alternatives.
 
 Packages that define new wrapper types and want to be compatible with packages
