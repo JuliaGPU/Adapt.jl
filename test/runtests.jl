@@ -243,6 +243,12 @@ end
     # can't possibly infer this one, so not using @test_adapt
     #@test_adapt SArray           [1,2,3] SArray{Tuple{3}}([1,2,3])
     @test adapt(SArray, [1,2,3]) === SArray{Tuple{3}}([1,2,3])
+
+    # adapt_structure recursively adapts SArray elements
+    struct F64toF32 end
+    Adapt.adapt_storage(::F64toF32, x::Float64) = Float32(x)
+    @test adapt(F64toF32(), SVector{2}(1.0, 2.0)) === SVector{2}(1.0f0, 2.0f0)
+    @test adapt(F64toF32(), SVector{2}(1, 2)) === SVector{2}(1, 2)  # no-op for Int
 end
 
 @testset "Ranges" begin
