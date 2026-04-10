@@ -5,10 +5,10 @@ Define a method `adapt_structure(to, obj::T)` which calls `adapt_structure` on e
 of `obj` and constructs a new instance of `T` using the default constuctor `T(...)`.
 """
 macro adapt_structure(T)
-    esc(quote
-        @generated function Adapt.adapt_structure(to, obj::$T)
-            assignments = Any[:(Adapt.adapt_structure(to, obj.$name)) for name in fieldnames(obj)]
-            return Expr(:call, $T, assignments...)
+    quote
+        @generated function $Adapt.adapt_structure($(esc(:to)), $(esc(:obj))::$(esc(T)))
+            assignments = Any[:($$Adapt.adapt_structure(to, obj.$name)) for name in fieldnames($(esc(:obj)))]
+            return Expr(:call, $(esc(T)), assignments...)
         end
-    end)
+    end
 end
