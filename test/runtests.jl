@@ -214,6 +214,13 @@ end
 
     @test_adapt CustomArray MyStruct(u,v) MyStruct(CustomArray(u), CustomArray(v))
     @test_adapt CustomArray MyStruct(u,1.0) MyStruct(CustomArray(u), 1.0)
+
+    # Bug 102; type defined in the same block as @adapt_structure
+    struct LocalStruct
+        x::Int
+    end
+    Adapt.@adapt_structure LocalStruct
+    @test adapt(CustomArray, LocalStruct(1)) === LocalStruct(1)
 end
 
 
