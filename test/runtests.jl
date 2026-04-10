@@ -221,6 +221,17 @@ end
     end
     Adapt.@adapt_structure LocalStruct
     @test adapt(CustomArray, LocalStruct(1)) === LocalStruct(1)
+
+    # The macro must work in modules that only import @adapt_structure,
+    # not the Adapt module itself (e.g. `using Adapt: @adapt_structure`).
+    @eval module ModuleOnlyImportingMacro
+        using Adapt: @adapt_structure
+        struct S
+            x::Int
+        end
+        @adapt_structure S
+    end
+    @test adapt(CustomArray, ModuleOnlyImportingMacro.S(1)) === ModuleOnlyImportingMacro.S(1)
 end
 
 
