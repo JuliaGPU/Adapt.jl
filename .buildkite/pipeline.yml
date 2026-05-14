@@ -19,7 +19,7 @@ steps:
         commands: |
           julia --project -e '
             using Pkg
-      
+
             adapt  = pwd()
             devdir = mktempdir()
             cuda   = joinpath(devdir, "CUDA")
@@ -41,7 +41,7 @@ steps:
                 Pkg.activate(cuda)
               end
             end
-      
+
             println("+++ :julia: Running tests")
             Pkg.test(; coverage=true)'
         if: |
@@ -56,11 +56,12 @@ steps:
             julia:
               - "1.10"
               - "1.11"
-              - "1.12-nightly"
+              - "1.12"
+              - "1.13-nightly"
               - "nightly"
           adjustments:
             - with:
-                julia: "1.12-nightly"
+                julia: "1.13-nightly"
               soft_fail: true
             - with:
                 julia: "nightly"
@@ -87,7 +88,7 @@ steps:
         commands: |
           julia --project -e '
             using Pkg
-      
+
             adapt  = pwd()
             devdir = mktempdir()
             amdgpu = joinpath(devdir, "AMDGPU")
@@ -109,7 +110,7 @@ steps:
                 Pkg.activate(amdgpu)
               end
             end
-      
+
             println("+++ :julia: Running tests")
             Pkg.test(; coverage=true)'
         if: |
@@ -124,11 +125,12 @@ steps:
             julia:
               - "1.10"
               - "1.11"
-              - "1.12-nightly"
+              - "1.12"
+              - "1.13-nightly"
               - "nightly"
           adjustments:
             - with:
-                julia: "1.12-nightly"
+                julia: "1.13-nightly"
               soft_fail: true
             - with:
                 julia: "nightly"
