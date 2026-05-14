@@ -17,15 +17,10 @@ function adapt_structure(to, A::PermutedDimsArray)
 end
 adapt_structure(to, A::Base.ReshapedArray) =
       Base.reshape(adapt(to, parent(A)), size(A))
-@static if isdefined(Base, :NonReshapedReinterpretArray)
-    adapt_structure(to, A::Base.NonReshapedReinterpretArray) =
-          Base.reinterpret(eltype(A), adapt(to, parent(A)))
-    adapt_structure(to, A::Base.ReshapedReinterpretArray) =
-          Base.reinterpret(reshape, eltype(A), adapt(to, parent(A)))
-else
-    adapt_structure(to, A::Base.ReinterpretArray) =
-          Base.reinterpret(eltype(A), adapt(to, parent(A)))
-end
+adapt_structure(to, A::Base.NonReshapedReinterpretArray) =
+      Base.reinterpret(eltype(A), adapt(to, parent(A)))
+adapt_structure(to, A::Base.ReshapedReinterpretArray) =
+      Base.reinterpret(reshape, eltype(A), adapt(to, parent(A)))
 @eval function adapt_structure(to, A::Base.LogicalIndex{T}) where T
       # prevent re-calculating the count of booleans during LogicalIndex construction
       mask = adapt(to, A.mask)

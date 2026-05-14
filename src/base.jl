@@ -49,10 +49,8 @@ end
 
 adapt_structure(to, x::Core.Box) = Core.Box(adapt(to, x.contents))
 
-if VERSION >= v"1.7"
-  # we can't rewrite opaque closures
-  adapt_structure(to, oc::Core.OpaqueClosure) = oc
-end
+# we can't rewrite opaque closures
+adapt_structure(to, oc::Core.OpaqueClosure) = oc
 
 
 ## Broadcast
