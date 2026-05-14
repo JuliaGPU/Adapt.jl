@@ -10,7 +10,7 @@
 [pkgeval-img]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/A/Adapt.svg
 [pkgeval-url]: https://juliaci.github.io/NanosoldierReports/pkgeval_badges/A/Adapt.html
 
-[codecov-img]: https://codecov.io/gh/JuliaGPU/Adapt.jl/branch/master/graph/badge.svg
+[codecov-img]: https://codecov.io/gh/JuliaGPU/Adapt.jl/branch/main/graph/badge.svg
 [codecov-url]: https://codecov.io/gh/JuliaGPU/Adapt.jl
 
 The `adapt(T, x)` function acts like `convert(T, x)`, but without the
