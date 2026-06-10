@@ -175,6 +175,8 @@ using LinearAlgebra
 @test_adapt CustomArray UnitUpperTriangular(mat.arr) UnitUpperTriangular(mat) AnyCustomArray
 @test_adapt CustomArray Symmetric(mat.arr) Symmetric(mat) AnyCustomArray
 @test_adapt CustomArray Hermitian(mat.arr) Hermitian(mat) AnyCustomArray
+@test_adapt CustomArray Symmetric(mat.arr, :L) Symmetric(mat, :L) AnyCustomArray
+@test_adapt CustomArray Hermitian(mat.arr, :L) Hermitian(mat, :L) AnyCustomArray
     
 @test_adapt CustomArray Diagonal(vec.arr) Diagonal(vec) AnyCustomArray
 

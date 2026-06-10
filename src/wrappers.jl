@@ -46,9 +46,9 @@ adapt_structure(to, A::LinearAlgebra.Tridiagonal) =
 adapt_structure(to, A::LinearAlgebra.Bidiagonal) =
       LinearAlgebra.Bidiagonal(adapt(to, A.dv), adapt(to, A.ev), A.uplo)
 adapt_structure(to, A::LinearAlgebra.Symmetric) =
-      LinearAlgebra.Symmetric(adapt(to, parent(A)))
+      LinearAlgebra.Symmetric(adapt(to, parent(A)), A.uplo == 'U' ? :U : :L)
 adapt_structure(to, A::LinearAlgebra.Hermitian) =
-      LinearAlgebra.Hermitian(adapt(to, parent(A)))
+      LinearAlgebra.Hermitian(adapt(to, parent(A)), A.uplo == 'U' ? :U : :L)
 
 
 # we generally don't support multiple layers of wrappers, but some occur often
