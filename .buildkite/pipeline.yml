@@ -14,8 +14,7 @@ steps:
                 - src
                 - ext
         agents:
-          queue: "juliagpu"
-          cuda: "*"
+          queue: "cuda"
         commands: |
           julia --project -e '
             using Pkg
@@ -82,8 +81,7 @@ steps:
                 - src
                 - ext
         agents:
-          queue: "juliagpu"
-          rocm: "*"
+          queue: "rocm"
           rocmgpu: "*"
         commands: |
           julia --project -e '
