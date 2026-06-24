@@ -50,6 +50,14 @@ adapt(to) = Base.Fix1(adapt, to)
 adapt_structure(to, x) = adapt_storage(to, x)
 adapt_storage(to, x) = x
 
+# `adapt_structure` and `adapt_storage` are the documented extension points that
+# downstream packages overload (see the `adapt` docstring above and the README),
+# so mark them public. `eval(Expr(:public, ...))` keeps this file parsing on the
+# Julia 1.10 floor, where the `public` keyword does not yet exist.
+@static if VERSION >= v"1.11.0-DEV.469"
+    eval(Expr(:public, :adapt_structure, :adapt_storage))
+end
+
 # structure rules
 include("base.jl")
 include("wrappers.jl")
