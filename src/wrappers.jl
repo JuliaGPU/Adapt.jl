@@ -26,6 +26,8 @@ adapt_structure(to, A::Base.ReshapedReinterpretArray) =
       mask = adapt(to, A.mask)
       $(Expr(:new, :(Base.LogicalIndex{T, typeof(mask)}), :mask, :(A.sum)))
 end
+adapt_structure(to, A::Slices) =
+      Slices(adapt(to, A.parent), A.slicemap, A.axes)
 
 adapt_structure(to, A::LinearAlgebra.Adjoint) =
       LinearAlgebra.adjoint(adapt(to, parent(A)))
