@@ -147,6 +147,9 @@ inds = CustomArray{Int,1}([1,2])
 
 @test_adapt CustomArray reinterpret(reshape,Int64,mat.arr) reinterpret(reshape,Int64,mat) AnyCustomArray
 
+@test_adapt CustomArray eachcol(mat.arr) eachcol(mat)
+@test_adapt CustomArray eachrow(mat.arr) eachrow(mat)
+
 
 ## doubly-wrapped
 
