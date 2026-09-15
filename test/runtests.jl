@@ -70,6 +70,11 @@ Adapt.adapt_structure(to, xs::Wrapper) = Wrapper(adapt(to, xs.arr))
 @test @allocated(adapt(nothing, (1,2,3,4,5,6,7,8,9,10))) == 0
 
 @test_adapt CustomArray (a=mat.arr,) (a=mat,)
+@test_adapt CustomArray (a=Wrapper(mat.arr), b=(vec.arr,), c=1) (a=Wrapper(mat), b=(vec,), c=1)
+@test @inferred(adapt(nothing, (a=1, b=2.0))) === (a=1, b=2.0)
+@test @allocated(adapt(nothing, (a=1, b=2.0, c=3f0))) == 0
+@test @allocated(adapt(nothing, (a=1, b=2, c=3, d=4, e=5, f=6, g=7, h=8, i=9, j=10))) == 0
+@test @allocated(adapt(nothing, (a=Wrapper(1), b=(Wrapper(2.0),), c=(d=3f0,)))) == 0
 
 end
 

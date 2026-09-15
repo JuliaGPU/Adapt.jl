@@ -1,8 +1,9 @@
 # predefined adaptors for working with types from the Julia standard library
 
-# Use recursion to avoid inference bail-out in `map`
-#adapt_structure(to, xs::Union{Tuple,NamedTuple}) = map(adapt(to), xs)
-adapt_structure(to, xs::NamedTuple) = map(adapt(to), xs)
+# Recurse instead of calling `map`, whose NamedTuple method is not specialized
+# on the mapped function
+adapt_structure(to, xs::NamedTuple{names}) where {names} =
+  NamedTuple{names}(adapt_structure(to, Tuple(xs)))
 # Specialize on small Tuples
 function adapt_structure(to, xs::Tuple)
   if length(xs) ≤ 20
