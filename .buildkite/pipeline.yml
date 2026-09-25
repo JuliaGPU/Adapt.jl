@@ -1,3 +1,7 @@
+# Tests of the GPU back-ends against this version of Adapt. Adapt's own tests cover all
+# supported Julia versions on GitHub Actions, so the back-ends are only tested on the oldest
+# and newest release, and not on draft pull requests unless selected with `[only cuda]`,
+# `[only amdgpu]` or `[only tests]`.
 steps:
   - group: "CUDA"
     key: "cuda"
@@ -54,7 +58,7 @@ steps:
         if: |
           build.message =~ /\[only tests\]/ ||
           build.message =~ /\[only cuda\]/ ||
-          build.message !~ /\[only/ &&
+          build.message !~ /\[only/ && !build.pull_request.draft &&
             build.message !~ /\[skip tests\]/ &&
             build.message !~ /\[skip cuda\]/
         timeout_in_minutes: 90
@@ -62,17 +66,7 @@ steps:
           setup:
             julia:
               - "1.10"
-              - "1.11"
-              - "1.12"
-              - "1.13-nightly"
-              - "nightly"
-          adjustments:
-            - with:
-                julia: "1.13-nightly"
-              soft_fail: true
-            - with:
-                julia: "nightly"
-              soft_fail: true
+              - "1.13"
 
   - group: "AMDGPU"
     key: "amdgpu"
@@ -118,7 +112,7 @@ steps:
         if: |
           build.message =~ /\[only tests\]/ ||
           build.message =~ /\[only amdgpu\]/ ||
-          build.message !~ /\[only/ &&
+          build.message !~ /\[only/ && !build.pull_request.draft &&
             build.message !~ /\[skip tests\]/ &&
             build.message !~ /\[skip amdgpu\]/
         timeout_in_minutes: 90
@@ -126,15 +120,5 @@ steps:
           setup:
             julia:
               - "1.10"
-              - "1.11"
-              - "1.12"
-              - "1.13-nightly"
-              - "nightly"
-          adjustments:
-            - with:
-                julia: "1.13-nightly"
-              soft_fail: true
-            - with:
-                julia: "nightly"
-              soft_fail: true
+              - "1.13"
 
