@@ -2,18 +2,17 @@
 
 using LinearAlgebra
 
-permutation(::PermutedDimsArray{T,N,perm}) where {T,N,perm} = perm
-
 
 export WrappedArray, parent_type, unwrap_type
 
 adapt_structure(to, A::SubArray) =
       SubArray(adapt(to, parent(A)), adapt(to, parentindices(A)))
-function adapt_structure(to, A::PermutedDimsArray)
-      perm = permutation(A)
-      iperm = invperm(perm)
+# rebuild around the adapted parent without the constructor: `A` already validated `perm`,
+# and the constructor's check leaves a string-building `throw` behind, which GPU compilers
+# reject when `adapt` runs in device code
+@eval function adapt_structure(to, A::PermutedDimsArray{T,N,perm,iperm}) where {T,N,perm,iperm}
       A′ = adapt(to, parent(A))
-      PermutedDimsArray{eltype(A′),ndims(A′),perm,iperm,typeof(A′)}(A′)
+      $(Expr(:new, :(PermutedDimsArray{eltype(A′),N,perm,iperm,typeof(A′)}), :A′))
 end
 adapt_structure(to, A::Base.ReshapedArray) =
       Base.reshape(adapt(to, parent(A)), size(A))
