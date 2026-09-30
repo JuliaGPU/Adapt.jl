@@ -147,6 +147,13 @@ inds = CustomArray{Int,1}([1,2])
 
 @test_adapt CustomArray reinterpret(reshape,Int64,mat.arr) reinterpret(reshape,Int64,mat) AnyCustomArray
 
+@test_adapt CustomArray eachcol(mat.arr) eachcol(mat)
+@test_adapt CustomArray eachrow(mat.arr) eachrow(mat)
+@test_adapt CustomArray eachslice(mat.arr; dims=2, drop=false) eachslice(mat; dims=2, drop=false)
+@test_adapt CustomArray eachrow(transpose(mat.arr)) eachrow(transpose(mat))
+let arr = rand(2,3,4)
+    @test_adapt CustomArray eachslice(arr; dims=(3,1)) eachslice(CustomArray(arr); dims=(3,1))
+end
 
 ## doubly-wrapped
 
