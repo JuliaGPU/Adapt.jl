@@ -17,27 +17,35 @@ steps:
           queue: "cuda"
         commands: |
           julia --project -e '
-            using Pkg
+            using Pkg, TOML
 
             adapt  = pwd()
             devdir = mktempdir()
             cuda   = joinpath(devdir, "CUDA")
-            println("--- :julia: Installing TestEnv")
-            Pkg.activate(; temp=true)
-            Pkg.add("TestEnv")
-            using TestEnv
 
             println("--- :julia: Installing CUDA")
             withenv("JULIA_PKG_PRECOMPILE_AUTO" => 0,
                     "JULIA_PKG_DEVDIR" => devdir) do
               try
+                Pkg.activate(; temp=true)
                 Pkg.develop("CUDA")
-                TestEnv.activate("CUDA")
+                Pkg.activate(cuda)
+
+                pkgs = [PackageSpec(path=adapt)]
+                if VERSION < v"1.11"
+                  # Julia 1.10 ignores [sources], so develop the packages
+                  # that live in the CUDA.jl repository explicitly
+                  test = joinpath(cuda, "test")
+                  sources = TOML.parsefile(joinpath(test, "Project.toml"))["sources"]
+                  for (name, source) in sources
+                    name == "CUDA" && continue
+                    push!(pkgs, PackageSpec(path=normpath(test, source["path"])))
+                  end
+                end
+                Pkg.develop(pkgs)
               catch err
                 @error "Could not install CUDA" exception=(err,catch_backtrace())
                 exit(3)
-              finally
-                Pkg.activate(cuda)
               end
             end
 
@@ -90,22 +98,18 @@ steps:
             adapt  = pwd()
             devdir = mktempdir()
             amdgpu = joinpath(devdir, "AMDGPU")
-            println("--- :julia: Installing TestEnv")
-            Pkg.activate(; temp=true)
-            Pkg.add("TestEnv")
-            using TestEnv
 
             println("--- :julia: Installing AMDGPU")
             withenv("JULIA_PKG_PRECOMPILE_AUTO" => 0,
                     "JULIA_PKG_DEVDIR" => devdir) do
               try
+                Pkg.activate(; temp=true)
                 Pkg.develop("AMDGPU")
-                TestEnv.activate("AMDGPU")
+                Pkg.activate(amdgpu)
+                Pkg.develop(PackageSpec(path=adapt))
               catch err
                 @error "Could not install AMDGPU" exception=(err,catch_backtrace())
                 exit(3)
-              finally
-                Pkg.activate(amdgpu)
               end
             end
 
