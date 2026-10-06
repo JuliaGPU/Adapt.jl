@@ -126,6 +126,14 @@ f′ = adapt(CustomArray, f)
 @test f′(x3.arr) === (x1, x2, x3.arr)
 # NOTE: actual arguments should be adapted by the caller
 
+# closure capturing a `Fix1`/`Fix2` (which are functions too)
+closure4(g) = x -> g(x)
+for g in (Base.Fix1(isequal, mat.arr), Base.Fix2(isequal, mat.arr))
+    f = closure4(g)
+    f′ = @inferred adapt(CustomArray, f)
+    @test f′.g.x === mat
+end
+
 end
 
 

@@ -53,6 +53,11 @@ adapt_structure(to, x::Core.Box) = Core.Box(adapt(to, x.contents))
 # we can't rewrite opaque closures
 adapt_structure(to, oc::Core.OpaqueClosure) = oc
 
+# `Fix1` and `Fix2` are functions too, but the closure rule above is not inferable when it
+# recurses into them from a closure that captures one
+adapt_structure(to, f::Base.Fix1) = Base.Fix1(adapt(to, f.f), adapt(to, f.x))
+adapt_structure(to, f::Base.Fix2) = Base.Fix2(adapt(to, f.f), adapt(to, f.x))
+
 
 ## Broadcast
 
