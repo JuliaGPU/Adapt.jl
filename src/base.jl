@@ -22,30 +22,35 @@ _adapt_tuple_structure(to, xs::Tuple{<:Any}) = (adapt(to, first(xs)), )
 
 # two things can be captured: static parameters, and actual values (fields)
 
-@eval function adapt_structure(to, f::F) where {F<:Function}
+# The rule is generated so that the type bookkeeping happens when generating, not during
+# inference: when this method recurses (a closure capturing a closure or a `ComposedFunction`),
+# inference stops constant-folding the reflection and the result type is lost.
+@generated function adapt_structure(to, f::F) where {F<:Function}
   # how many type parameters does this function have?
   # each captured value will have one (with the exception of boxed values)
   num_type_params = length(F.parameters)
-  num_type_params <= 0 && return f
+  num_type_params <= 0 && return :f
 
   # the remainder of the parameters are static parameters
   num_typed_captures = count(!(==(Core.Box)), fieldtypes(F))
   num_static_params = num_type_params - num_typed_captures
-  static_params = ntuple(i->F.parameters[i], num_static_params)
+  static_params = F.parameters[1:num_static_params]
   # TODO: we should adapt the static parameters too
   #       (but adapt currently only works with values)
 
   # adapt the captured values
-  fields = adapt(to, ntuple(i->getfield(f, i), fieldcount(F)))
+  fields = [:(adapt(to, getfield(f, $i))) for i in 1:fieldcount(F)]
   # TODO: this assumes the typevars of the closure matches the sparams + fields.
   #       that may not always be true, and definitely isn't for arbitrary callable objects.
-  typed_captures = filter(fields) do field
-    !isa(field, Core.Box)
-  end
+  typed_captures = [:(Core.Typeof($(Symbol(:field, i)))) for i in 1:fieldcount(F)
+                    if fieldtype(F, i) !== Core.Box]
 
   # create a new function
-  ftyp = F.name.wrapper{static_params..., map(Core.Typeof, typed_captures)...}
-  $(Expr(:splatnew, :ftyp, :fields))
+  quote
+    $((:($(Symbol(:field, i)) = $(fields[i])) for i in 1:fieldcount(F))...)
+    ftyp = $(F.name.wrapper){$(static_params...), $(typed_captures...)}
+    $(Expr(:new, :ftyp, (Symbol(:field, i) for i in 1:fieldcount(F))...))
+  end
 end
 
 adapt_structure(to, x::Core.Box) = Core.Box(adapt(to, x.contents))
