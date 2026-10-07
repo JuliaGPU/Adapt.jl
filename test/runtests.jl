@@ -145,6 +145,11 @@ inds = CustomArray{Int,1}([1,2])
 
 # NOTE: manual creation of PermutedDimsArray because permutedims collects
 @test_adapt CustomArray PermutedDimsArray(mat.arr,(2,1)) PermutedDimsArray(mat,(2,1)) AnyCustomArray
+arr3 = CustomArray{Float64,3}(rand(2,3,4))
+@test_adapt CustomArray PermutedDimsArray(arr3.arr,(2,3,1)) PermutedDimsArray(arr3,(2,3,1)) AnyCustomArray
+# re-wrapping must not reach the constructor's argument check, which GPU compilers reject
+@test Core.Compiler.is_nothrow(Base.infer_effects(adapt,
+    (Type{CustomArray}, typeof(PermutedDimsArray(arr3.arr,(2,3,1))))))
 
 # NOTE: manual creation of ReshapedArray because Base.Array has an optimized `reshape`
 @test_adapt CustomArray Base.ReshapedArray(mat.arr,(2,2),()) reshape(mat,(2,2)) AnyCustomArray
