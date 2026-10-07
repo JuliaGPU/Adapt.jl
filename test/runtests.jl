@@ -134,6 +134,16 @@ for g in (Base.Fix1(isequal, mat.arr), Base.Fix2(isequal, mat.arr))
     @test f′.g.x === mat
 end
 
+# closures capturing other callables, which recurse into the closure rule
+closure5(c) = x -> x == c
+for g in (Base.Fix2(isequal, mat.arr) ∘ identity, Returns(mat.arr), closure5(mat.arr),
+          closure4(closure5(mat.arr)))
+    f = closure4(g)
+    @inferred adapt(CustomArray, f)
+end
+@test adapt(CustomArray, closure4(identity ∘ Returns(mat.arr))).g.inner.value === mat
+@test adapt(CustomArray, closure4(closure4(closure5(mat.arr)))).g.g.c === mat
+
 end
 
 
