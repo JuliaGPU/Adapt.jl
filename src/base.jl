@@ -34,7 +34,8 @@ _adapt_tuple_structure(to, xs::Tuple{<:Any}) = (adapt(to, first(xs)), )
   # the remainder of the parameters are static parameters
   num_typed_captures = count(!(==(Core.Box)), fieldtypes(F))
   num_static_params = num_type_params - num_typed_captures
-  static_params = F.parameters[1:num_static_params]
+  # quoted, since a static parameter can be a value that does not evaluate to itself
+  static_params = map(QuoteNode, F.parameters[1:num_static_params])
   # TODO: we should adapt the static parameters too
   #       (but adapt currently only works with values)
 
