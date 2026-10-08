@@ -109,6 +109,12 @@ f = closure2(mat.arr)
 f′ = adapt(CustomArray, f)
 @test f′() === (mat, false)
 
+# closure with a static parameter that is not a type
+closure2b(::Val{S}, x) where {S} = () -> (S, x)
+f = closure2b(Val(:a), mat.arr)
+f′ = @inferred adapt(CustomArray, f)
+@test f′() === (:a, mat)
+
 # closure with box
 x1 = CustomArray{Int,1}([1])
 x2 = CustomArray{Int,1}([2])
