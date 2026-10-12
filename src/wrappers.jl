@@ -9,11 +9,11 @@ export WrappedArray, parent_type, unwrap_type
 
 adapt_structure(to, A::SubArray) =
       SubArray(adapt(to, parent(A)), adapt(to, parentindices(A)))
-function adapt_structure(to, A::PermutedDimsArray)
-      perm = permutation(A)
-      iperm = invperm(perm)
+# bypass the constructor: it re-validates `perm`, which `A` already did, and its error
+# message builds a String that GPU compilers reject when this runs in a kernel (`@Const`)
+@eval function adapt_structure(to, A::PermutedDimsArray{T,N,perm,iperm}) where {T,N,perm,iperm}
       A′ = adapt(to, parent(A))
-      PermutedDimsArray{eltype(A′),ndims(A′),perm,iperm,typeof(A′)}(A′)
+      $(Expr(:new, :(PermutedDimsArray{eltype(A′),N,perm,iperm,typeof(A′)}), :A′))
 end
 adapt_structure(to, A::Base.ReshapedArray) =
       Base.reshape(adapt(to, parent(A)), size(A))
