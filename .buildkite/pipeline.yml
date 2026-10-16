@@ -50,7 +50,7 @@ steps:
             end
 
             println("+++ :julia: Running tests")
-            Pkg.test(; coverage=true)'
+            Pkg.test(; coverage="@" * adapt)'
         if: |
           build.message =~ /\[only tests\]/ ||
           build.message =~ /\[only cuda\]/ ||
@@ -114,7 +114,7 @@ steps:
             end
 
             println("+++ :julia: Running tests")
-            Pkg.test(; coverage=true)'
+            Pkg.test(; coverage="@" * adapt)'
         if: |
           build.message =~ /\[only tests\]/ ||
           build.message =~ /\[only amdgpu\]/ ||
