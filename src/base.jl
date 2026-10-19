@@ -4,18 +4,48 @@
 # on the mapped function
 adapt_structure(to, xs::NamedTuple{names}) where {names} =
   NamedTuple{names}(adapt_structure(to, Tuple(xs)))
-# Specialize on small Tuples
+# Specialize on small Tuples. Avoid `map` for longer ones where possible, because Base's
+# `map` over 32 or more elements is not inferable.
 function adapt_structure(to, xs::Tuple)
   if length(xs) ≤ 20
     _adapt_tuple_structure(to, xs)
+  elseif xs isa NTuple
+    _adapt_homogeneous_tuple(to, xs)
   else
-    map(adapt(to), xs)
+    _adapt_long_tuple(to, xs)
   end
 end
 _adapt_tuple_structure(to, xs::Tuple) =
   (adapt(to, first(xs)), _adapt_tuple_structure(to, Base.tail(xs))...)
 _adapt_tuple_structure(to, xs::Tuple{}) = ()
 _adapt_tuple_structure(to, xs::Tuple{<:Any}) = (adapt(to, first(xs)), )
+
+# Unrolling costs compile time (about 0.5s for 1000 elements), so it is bounded. The bound
+# is a compilation budget, not a size limit.
+_adapt_long_tuple(to, xs::Tuple) =
+  length(xs) ≤ 1024 ? ntuple(i -> adapt(to, xs[i]), Val(length(xs))) : map(adapt(to), xs)
+
+# Homogeneous tuples (e.g. kernel arguments) are adapted in a loop instead, which is
+# inferable without unrolling as long as the elements adapt to a single isbits type.
+function _adapt_homogeneous_tuple(to, xs::NTuple{N}) where {N}
+  y = adapt(to, xs[1])
+  S = typeof(y)
+  isbitstype(S) || return (y, _adapt_long_tuple(to, Base.tail(xs))...)
+  r = Ref{NTuple{N,S}}()
+  GC.@preserve r begin
+    p = Ptr{S}(Base.unsafe_convert(Ptr{NTuple{N,S}}, r))
+    unsafe_store!(p, y, 1)
+    for i in 2:N
+      z = adapt(to, xs[i])
+      if !(z isa S)
+        # the adapted type depends on the value; keep what was adapted already
+        return (ntuple(j -> unsafe_load(p, j), i-1)..., z, map(adapt(to), xs[i+1:N])...)
+      end
+      unsafe_store!(p, z, i)
+    end
+  end
+  r[]
+end
 
 
 ## Closures
