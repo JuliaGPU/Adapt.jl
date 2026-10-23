@@ -78,6 +78,56 @@ Adapt.adapt_structure(to, xs::Wrapper) = Wrapper(adapt(to, xs.arr))
 
 end
 
+# adaptors for scalars, to test long tuples
+struct ToFloat end
+Adapt.adapt_storage(::ToFloat, x::Int) = Float64(x)
+struct ToNothing end
+Adapt.adapt_storage(::ToNothing, x::Int) = nothing
+struct Padded
+    a::Int8
+    b::Int64
+end
+struct ToPadded end
+Adapt.adapt_storage(::ToPadded, x::Int) = Padded(x % Int8, x)
+struct CountingAdaptor
+    count::Base.RefValue{Int}
+end
+Adapt.adapt_storage(to::CountingAdaptor, xs::Array) = (to.count[] += 1; copy(xs))
+Adapt.adapt_storage(to::CountingAdaptor, x::Int) = (to.count[] += 1; x == 39 ? Float64(x) : x)
+struct TupleAdaptor end
+Adapt.adapt_structure(::TupleAdaptor, xs::Tuple) = length(xs)
+
+@testset "long tuples" begin
+
+for n in (32, 100, 1500)
+    @test_adapt ToFloat() ntuple(identity, n) ntuple(Float64, n)
+end
+for n in (32, 1024)
+    @test_adapt ToFloat() ntuple(i -> isodd(i) ? i : Int32(i), n) ntuple(i -> isodd(i) ? Float64(i) : Int32(i), n)
+end
+
+nt = NamedTuple{ntuple(i -> Symbol(:a, i), 50)}(ntuple(identity, 50))
+@test_adapt ToFloat() nt NamedTuple{keys(nt)}(ntuple(Float64, 50))
+
+@test_adapt ToNothing() ntuple(identity, 40) ntuple(_ -> nothing, 40)
+@test_adapt ToPadded() ntuple(identity, 40) ntuple(i -> Padded(i % Int8, i), 40)
+
+# elements are adapted once, also when they adapt to different types
+to = CountingAdaptor(Ref(0))
+@test adapt(to, ntuple(identity, 40)) === ntuple(i -> i == 39 ? Float64(i) : i, 40)
+@test to.count[] == 40
+
+# or to values that are not isbits
+xs = ntuple(i -> [i], 40)
+to = CountingAdaptor(Ref(0))
+@test @inferred(adapt(to, xs)) == xs
+@test to.count[] == 40
+
+# adaptors can still define their own rule for tuples
+@test adapt(TupleAdaptor(), ntuple(identity, 40)) == 40
+
+end
+
 # NOTE: if we put this in the preceding testset, unrelated tests start to allocate
 @testset "closures" begin
 
