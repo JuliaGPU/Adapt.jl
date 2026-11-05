@@ -200,6 +200,19 @@ end
 @test adapt(CustomArray, closure4(identity ∘ Returns(mat.arr))).g.inner.value === mat
 @test adapt(CustomArray, closure4(closure4(closure5(mat.arr)))).g.g.c === mat
 
+# orderings, which sorting kernels capture in their comparator
+lt = closure5(mat.arr)
+for (ord, captured, expected) in
+        ((Base.Order.Lt(lt),                             o -> o.lt.c,       mat),
+         (Base.Order.By(lt),                             o -> o.by.c,       mat),
+         (Base.Order.By(identity, Base.Order.Lt(lt)),    o -> o.order.lt.c, mat),
+         (Base.Order.ReverseOrdering(Base.Order.Lt(lt)), o -> o.fwd.lt.c,   mat),
+         (Base.Order.Perm(Base.Order.Forward, vec.arr),  o -> o.data,       vec))
+    f = closure4(ord)
+    f′ = @inferred adapt(CustomArray, f)
+    @test captured(f′.g) === expected
+end
+
 end
 
 

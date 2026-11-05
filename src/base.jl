@@ -95,6 +95,17 @@ adapt_structure(to, f::Base.Fix1) = Base.Fix1(adapt(to, f.f), adapt(to, f.x))
 adapt_structure(to, f::Base.Fix2) = Base.Fix2(adapt(to, f.f), adapt(to, f.x))
 
 
+## Orderings
+
+# sorting kernels capture these in their comparators, together with the user's `lt` and `by`
+adapt_structure(to, o::Base.Order.Lt) = Base.Order.Lt(adapt(to, o.lt))
+adapt_structure(to, o::Base.Order.By) = Base.Order.By(adapt(to, o.by), adapt(to, o.order))
+adapt_structure(to, o::Base.Order.ReverseOrdering) =
+  Base.Order.ReverseOrdering(adapt(to, o.fwd))
+adapt_structure(to, o::Base.Order.Perm) =
+  Base.Order.Perm(adapt(to, o.order), adapt(to, o.data))
+
+
 ## Broadcast
 
 import Base.Broadcast: Broadcasted, Extruded
